@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <title>Sovelluksen slogan</title>
+    </head>
+    <body style="background-color: rgb(219, 192, 192)">
+        <h1 id="project slogan">Register as a new user by inserting information below:</h1>
+
+        <form action="/register" method="POST">
+            Username:
+            <input type="text" name="name" rows="1" cols="40"></text><br>
+            Password:
+            <input type="text" name="password" rows="1" cols="40"></text><br>
+            Re-type password:
+            <input type="text" name="re-typed password" rows="1" cols="40"></text><br>
+            Request supervisor status:
+            <input type="radio" name="supervisor status request"><br>
+            <input type="submit" value="Register">
+        </form>
+        
+        {% for message in messages %}
+        <p style="color: red">{{ message }}</p>
+        {% endfor %}
+
+        <script src="static/javascript/canvases.js"></script>
+        <script src="static/javascript/functions.js"></script>
+    </body>
+</html>

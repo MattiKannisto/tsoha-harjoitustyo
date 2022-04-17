@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <title>Sovelluksen slogan</title>
+    </head>
+    <body style="background-color: rgb(219, 192, 192)">
+        <h1 id="project slogan">Welcome {{ user.name }} to using the project management tool!</h1>
+        <button id="change slogan button" onclick="changeText('project slogan')"> 1</button> 
+        {% for projekti in lista %}
+            <p>{{ projekti }}</p>
+            <canvas id="projectCanvas"></canvas>
+        {% endfor %}
+
+        <h2>Workers:</h2>
+        {% for worker in workers %}
+            <p>{{ worker.name }}</p>
+        {% endfor %}
+
+        <a href="/register">Register</a>
+
+        <form action="/login" method="POST">
+            Username:
+            <input type="text" name="name" rows="1" cols="40"></text>
+            Password:
+            <input type="text" name="password" rows="1" cols="40"></text>
+            <input type="submit" value="Login">
+        </form>
+            
+
+        <script src="static/javascript/canvases.js"></script>
+        <script src="static/javascript/functions.js"></script>
+    </body>
+</html>
