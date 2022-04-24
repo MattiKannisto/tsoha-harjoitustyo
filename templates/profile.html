@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ session.name }}
+{% endblock %}
+
+{% block heading_1 %}
+{{ session.name }} worker profile
+{% endblock %}
+
+{% block content %}            
+    {% if session.is_supervisor %}
+        <form action="/workers/{{id}}/worker-request" method="POST">
+            <input type="submit" value="Request worker status">
+        </form>
+    {% else %}
+        <form action="/workers/{{id}}/supervisor-request" method="POST">
+            <input type="submit" value="Request supervisor status">
+        </form>
+    {% endif %}
+    <span>{{ message }}</span>
+{% endblock %}

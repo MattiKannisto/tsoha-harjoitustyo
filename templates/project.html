@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ project.name}}
+{% endblock %}
+
+{% block heading_1 %}
+    {{ project.name }}
+{% endblock %}
+
+{% block content %}
+
+    {% if is_supervisor %}
+    {% for worker in project_workers %}
+        <p>{{ worker.name }} </p>
+    {% endfor %}
+    <p>Add workers to project:</p>
+        {% for worker in available_workers %}
+            <form action="/projects/{{ project.id }}/add_worker/{{ worker.id }}" method="POST">
+                <span>{{ worker.name }} </span>
+                <input type="submit" value="Add to project">
+            </form>
+        {% endfor %}
+    {% else %}
+        <p>You are worker</p>
+    {% endif %}
+{% endblock %}

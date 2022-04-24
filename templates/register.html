@@ -1,28 +1,32 @@
-<!DOCTYPE HTML>
-<html lang="en">
-    <head>
-        <title>Sovelluksen slogan</title>
-    </head>
-    <body style="background-color: rgb(219, 192, 192)">
-        <h1 id="project slogan">Register as a new user by inserting information below:</h1>
+{% extends "base.html" %}
 
-        <form action="/register" method="POST">
+{% block title %}
+    Register
+{% endblock %}
+
+{% block heading_1 %}
+    Register as a new user:
+{% endblock %}
+{% block login_logout %}{% endblock %}
+{% block content %}    
+        <form action="/register" method="POST" oninput="checkRegisterForm()">
             Username:
-            <input type="text" name="name" rows="1" cols="40"></text><br>
+            <input id="nameInput" type="text" name="name" rows="1" cols="40"></text>
+            <b><span id="nameInputError" style="color: red;"></span></b>
+            <br>
             Password:
-            <input type="text" name="password" rows="1" cols="40"></text><br>
+            <input id="passwordInput" type="password" name="password" rows="1" cols="40"></text>
+            <b><span id="passwordInputError" style="color: red;"></span></b>
+            <br>
             Re-type password:
-            <input type="text" name="re-typed password" rows="1" cols="40"></text><br>
-            Request supervisor status:
-            <input type="radio" name="supervisor status request"><br>
-            <input type="submit" value="Register">
+            <input id="reTypedPasswordInput" type="password" name="re-typed password" rows="1" cols="40"></text>
+            <b><span id="reTypedPasswordInputError" style="color: red;"></span></b>
+            <br>
+            <input id="registerSubmitButton" type="submit" value="Register" disabled>
         </form>
         
         {% for message in messages %}
-        <p style="color: red">{{ message }}</p>
+            <p style="color: red">{{ message }}</p>
         {% endfor %}
-
-        <script src="static/javascript/canvases.js"></script>
-        <script src="static/javascript/functions.js"></script>
-    </body>
-</html>
+        <script src="/static/javascript/functions.js"></script>
+{% endblock %}

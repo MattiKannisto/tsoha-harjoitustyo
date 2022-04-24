@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Workers
+{% endblock %}
+
+{% block heading_1 %}
+    Workers
+{% endblock %}
+
+{% block content %}            
+    {% for worker in workers %}
+        <p><a href="/workers/{{ worker.id }}">{{ worker.name }}</a></p>
+    {% endfor %}
+{% endblock %}

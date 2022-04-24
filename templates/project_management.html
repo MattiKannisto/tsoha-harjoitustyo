@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Projects
+{% endblock %}
+
+{% block heading_1 %}
+    Projects
+{% endblock %}
+
+{% block content %}
+
+{% for project in projects %}
+    <p><a href="/projects/{{ project.id }}">{{ project.name }}</a></p>
+{% endfor %}
+    {% if is_supervisor %}
+        <p>Create project:</p>
+        <form action="/create_project" method="POST">
+            Name:
+            <input type="text" name="name" rows="1" cols="40"></text><br>
+            <input type="submit" value="Create">
+        </form>
+    {% endif %}
+
+{% endblock %}

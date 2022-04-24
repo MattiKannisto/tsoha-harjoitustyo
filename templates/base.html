@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body style="background-color:rgb(185, 180, 180);">
+    <a href="/">main page</a><span> - </span><a href="/projects">projects</a><span> - </span>
+    <a href="/workers">workers</a>
+    {% if session.is_supervisor %}
+        <span> - </span><a href="/supervisors">supervisors</a>
+    {% endif %}
+    <h1>{% block heading_1 %}{% endblock %}</h1>
+    {% block login_logout %}
+        {% if session.name %}
+            <form action="/logout" method="POST">
+                <input type="submit" value="Logout">
+            </form>
+        {% else %}
+            <form action="/login" method="POST">
+                Username:
+                <input type="text" name="name" rows="1" cols="40"></text>
+                Password:
+                <input type="text" name="password" rows="1" cols="40"></text>
+                <input type="submit" value="Login">
+                <span style="color: red"><b> {{ message }} </b></span>
+            </form>
+        {% endif %}
+    {% endblock %}
+    {% block content %}{% endblock %}
+</body>
