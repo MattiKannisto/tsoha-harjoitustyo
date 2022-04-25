@@ -15,11 +15,15 @@
 {% endfor %}
     {% if is_supervisor %}
         <p>Create project:</p>
-        <form action="/create_project" method="POST">
+        <form action="/create_project" method="POST" oninput="checkProjectCreationForm()">
             Name:
-            <input type="text" name="name" rows="1" cols="40"></text><br>
-            <input type="submit" value="Create">
+            <input id="projectCreationNameInput" type="text" name="name" rows="1" cols="40"></text>
+            <b><span id="projectNameInputError" style="color: red;"></span></b>
+            <br>
+            <input id="projectCreationSubmitButton" type="submit" value="Create" disabled>
         </form>
     {% endif %}
-
+    {% for message in messages %}
+        <b><p style="color: red">{{ message }}</p></b>
+    {% endfor %}
 {% endblock %}

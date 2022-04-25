@@ -16,15 +16,16 @@
                 <input type="submit" value="Logout">
             </form>
         {% else %}
-            <form action="/login" method="POST">
+            <form action="/login" method="POST" oninput="checkLoginForm()">
                 Username:
-                <input type="text" name="name" rows="1" cols="40"></text>
+                <input id="loginNameInput" type="text" name="name" rows="1" cols="40"></text>
                 Password:
-                <input type="text" name="password" rows="1" cols="40"></text>
-                <input type="submit" value="Login">
+                <input id="loginPasswordInput" type="password" name="password" rows="1" cols="40"></text>
+                <input id="loginSubmitButton" type="submit" value="Login" disabled>
                 <span style="color: red"><b> {{ message }} </b></span>
             </form>
         {% endif %}
     {% endblock %}
     {% block content %}{% endblock %}
+    <script src="/static/javascript/functions.js"></script>
 </body>

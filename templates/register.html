@@ -9,24 +9,23 @@
 {% endblock %}
 {% block login_logout %}{% endblock %}
 {% block content %}    
-        <form action="/register" method="POST" oninput="checkRegisterForm()">
-            Username:
-            <input id="nameInput" type="text" name="name" rows="1" cols="40"></text>
-            <b><span id="nameInputError" style="color: red;"></span></b>
-            <br>
-            Password:
-            <input id="passwordInput" type="password" name="password" rows="1" cols="40"></text>
-            <b><span id="passwordInputError" style="color: red;"></span></b>
-            <br>
-            Re-type password:
-            <input id="reTypedPasswordInput" type="password" name="re-typed password" rows="1" cols="40"></text>
-            <b><span id="reTypedPasswordInputError" style="color: red;"></span></b>
-            <br>
-            <input id="registerSubmitButton" type="submit" value="Register" disabled>
-        </form>
-        
-        {% for message in messages %}
-            <p style="color: red">{{ message }}</p>
-        {% endfor %}
-        <script src="/static/javascript/functions.js"></script>
+    <form action="/register" method="POST" oninput="checkRegisterForm()">
+        Username:
+        <input id="nameInput" type="text" name="name" rows="1" cols="40"></text>
+        <b><span id="nameInputError" style="color: red;"></span></b>
+        <br>
+        Password:
+        <input id="passwordInput" type="password" name="password" rows="1" cols="40"></text>
+        <b><span id="passwordInputError" style="color: red;"></span></b>
+        <br>
+        Re-type password:
+        <input id="reTypedPasswordInput" type="password" name="re-typed password" rows="1" cols="40"></text>
+        <b><span id="reTypedPasswordInputError" style="color: red;"></span></b>
+        <br>
+        <input id="registerSubmitButton" type="submit" value="Register" disabled>
+    </form>
+    
+    {% for message in messages %}
+        <b><p style="color: red">{{ message }}</p></b>
+    {% endfor %}
 {% endblock %}
