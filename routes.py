@@ -82,7 +82,7 @@ def worker(id):
     
     workers_projects = projects.get_all_by_worker_id(id)
     
-    return render_template("profile.html", worker=worker, projects=workers_projects)
+    return render_template("worker.html", worker=worker, projects=workers_projects)
 
 @app.route("/workers/<int:worker_id>/resign", methods=["POST"])
 def worker_resignation(worker_id):
@@ -169,7 +169,7 @@ def remove_worker_from_project(project_id, worker_id):
 @app.route("/projects", methods=["GET"])
 def manage_projects():
     all_projects = projects.get_all()
-    return render_template("project_management.html", projects=all_projects)
+    return render_template("projects.html", projects=all_projects)
 
 @app.route("/create_project", methods=["POST"])
 def create_project():
@@ -179,7 +179,7 @@ def create_project():
     error_messages = projects.get_creation_error_messages(name)
     if error_messages:
         all_projects = projects.get_all()
-        return render_template("project_management.html", projects=all_projects,
+        return render_template("projects.html", projects=all_projects,
                                messages=error_messages)
     projects.create(name)
     return redirect("/projects")
