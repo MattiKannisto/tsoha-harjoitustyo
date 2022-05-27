@@ -5,12 +5,15 @@
 {% endblock %}
 
 {% block heading_1 %}
-    Welcome {{ session.name }} to using Polle project management tool!
+    Welcome {{ session.name }} to use Polle project management tool!
 {% endblock %}
 
-{% block content %}            
+{% block content %}
+<p>Polle is a project management system that allows one to manage which projects your team members parcipate in.</p>
+<p>Polle allows you to browse the <a href="/projects">projects</a> and <a href="/workers">workers</a>.</p>
+
     {% if not session.name %}
         <br>
         <p>New to Polle? Register <a href="/register">here</a>.</p>
-    {% endif %}
+    {% endif %}  
 {% endblock %}

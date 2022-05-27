@@ -1,25 +1,26 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {{ session.name }}
+    {{ worker.name }}
 {% endblock %}
 
 {% block heading_1 %}
-{{ session.name }} worker profile
+    <span>
+        {{ worker.name }} worker profile
+        {% if session.id == worker.id %}
+            <form action="/workers/{{worker.id}}/resign" method="POST">
+                <input type="submit" value="Terminate contract">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+            </form>
+        {% endif %}
+    </span>
 {% endblock %}
-
-{% block content %}            
-    {% if session.is_supervisor %}
-        <form action="/workers/{{id}}/worker-request" method="POST">
-            <input type="submit" value="Request worker status">
-        </form>
+{% block content %}
+    {% if projects %}
+        {% for project in projects %}
+            <p>Works in project <a href="/projects/{{project.id}}">{{project.name}}</a></p>
+        {% endfor %}
     {% else %}
-        <form action="/workers/{{id}}/supervisor-request" method="POST">
-            <input type="submit" value="Request supervisor status">
-        </form>
+        <p>Currently does not work in any project</p>
     {% endif %}
-    <form action="/workers/{{id}}/remove" method="POST">
-        <input type="submit" value="Terminate contract">
-    </form>
-    <span>{{ message }}</span>
 {% endblock %}

@@ -1,27 +1,27 @@
-CREATE TABLE teams (
+CREATE TABLE workers (
     id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE
+    name TEXT UNIQUE,
+    password TEXT,
+    visible BOOLEAN
 );
 
 CREATE TABLE projects (
     id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE,
-    priority INTEGER
+    manager_id INTEGER REFERENCES workers,
+    name TEXT UNIQUE
 );
 
-CREATE TABLE workers (
+CREATE TABLE project_members (
     id SERIAL PRIMARY KEY,
-    team_id INTEGER REFERENCES teams,
-    project_id INTEGER REFERENCES projects,
-    name TEXT UNIQUE,
-    password TEXT,
-    performance INTEGER,
-    is_supervisor BOOLEAN
+    project_id INTEGER REFERENCES projects ON DELETE CASCADE,
+    worker_id INTEGER REFERENCES workers ON DELETE CASCADE,
+    contract_start_time TIMESTAMP,
+    contract_end_time TIMESTAMP
 );
 
 CREATE TABLE tasks (
     id SERIAL PRIMARY KEY,
-    project_id INTEGER REFERENCES projects,
+    project_id INTEGER REFERENCES projects ON DELETE CASCADE,
     name TEXT,
     description TEXT,
     status TEXT,
@@ -31,7 +31,7 @@ CREATE TABLE tasks (
 CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
     worker_id INTEGER REFERENCES workers,
-    task_id INTEGER REFERENCES tasks,
+    task_id INTEGER REFERENCES tasks ON DELETE CASCADE,
     content TEXT,
     date_and_time TIMESTAMP
 );

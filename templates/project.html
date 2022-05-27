@@ -10,18 +10,72 @@
 
 {% block content %}
 
-    {% if is_supervisor %}
-    {% for worker in project_workers %}
-        <p>{{ worker.name }} </p>
-    {% endfor %}
-    <p>Add workers to project:</p>
-        {% for worker in available_workers %}
-            <form action="/projects/{{ project.id }}/add_worker/{{ worker.id }}" method="POST">
-                <span>{{ worker.name }} </span>
-                <input type="submit" value="Add to project">
-            </form>
+    <p>Workers of the project:</p>
+        {% for worker in project_workers %}
+            <p>{{ worker.name }} </p>
+            {% if session.id == project.manager_id %}
+                <form action="/projects/{{ project.id }}/remove_worker/{{ worker.id }}" method="POST">
+                    <input type="submit" value="Remove from project">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                </form>
+                {% if project.manager_id != worker.id %}
+                    <form action="/projects/{{ project.id }}/change_manager/{{ worker.id }}" method="POST">
+                        <input type="submit" value="Pass manager status">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    </form>
+                {% endif %}
+            {% endif %}
         {% endfor %}
+        {% if session.id == project.manager_id %}
+            <p>Add workers to project:</p>
+                {% for worker in available_workers %}
+                    <form action="/projects/{{ project.id }}/add_worker/{{ worker.id }}" method="POST">
+                        <span>{{ worker.name }} </span>
+                        <input type="submit" value="Add to project">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    </form>
+                {% endfor %}
+        {% endif %}
+    <h3>Tasks:</h3>
+    {% if tasks %}
+        {% for task in tasks %}
+                {% if session.id == project.manager_id %}
+                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/remove" method="POST">
+                        <h4>{{ task.name }} ({{ task.status }})</h4>
+                        <input type="submit" value="Remove task from the project">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    </form>
+                {% else %}
+                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_status" method="POST">
+                        {{ task.name }} ({{ task.status }})
+                        <input type="submit" value="Change status to completed">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    </form>
+                {% endif %}
+                {% for comment in comments[task.id] %}
+                    <p>{{ comment[0].name }} ({{ comment[1].date_and_time }}): {{ comment[1].content }}</p>
+                {% endfor %}
+                {% if session.id == project.manager_id %}
+                    <form action="/tasks/{{ task.id }}/add_comment" method="POST">
+                        <input id="Comment content" type="text" name="content" rows="1" cols="100"></text>
+                        <input type="submit" value="Add comment">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
     {% else %}
-        <p>You are worker</p>
+        <p>This project does not have tasks yet.</p>
+    {% endif %}
+    {% if session.id == project.manager_id %}
+            <form action="/projects/{{ project.id }}/add_task" method="POST">
+                <span>Name: </span>
+                <input id="addTaskName" type="text" name="name" rows="1" cols="40"></text>
+                <span>Description: </span>
+                <input id="addTaskDescription" type="text" name="description" rows="1" cols="40"></text>
+                <input type="submit" value="Add task to the project">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+            </form>
     {% endif %}
 {% endblock %}

@@ -93,3 +93,7 @@ function checkLoginForm(){
         document.getElementById("loginSubmitButton").disabled = true
     }
 }
+
+function removeJavascriptErrorMessage(errorFieldId){
+    document.getElementById(errorFieldId).innerText = ""
+}

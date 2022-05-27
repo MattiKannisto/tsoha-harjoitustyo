@@ -13,17 +13,18 @@
 {% for project in projects %}
     <p><a href="/projects/{{ project.id }}">{{ project.name }}</a></p>
 {% endfor %}
-    {% if is_supervisor %}
-        <p>Create project:</p>
-        <form action="/create_project" method="POST" oninput="checkProjectCreationForm()">
-            Name:
-            <input id="projectCreationNameInput" type="text" name="name" rows="1" cols="40"></text>
-            <b><span id="projectNameInputError" style="color: red;"></span></b>
-            <br>
-            <input id="projectCreationSubmitButton" type="submit" value="Create" disabled>
-        </form>
-    {% endif %}
+{% if session.name %}
+    <p>Create project:</p>
+    <form action="/create_project" method="POST" oninput="checkProjectCreationForm()">
+        Name:
+        <input id="projectCreationNameInput" type="text" name="name" rows="1" cols="40"></text>
+        <b><span id="projectNameInputError" style="color: red;"></span></b>
+        <br>
+        <input id="projectCreationSubmitButton" type="submit" value="Create" disabled>
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+    </form>
     {% for message in messages %}
         <b><p style="color: red">{{ message }}</p></b>
     {% endfor %}
+{% endif %}  
 {% endblock %}
