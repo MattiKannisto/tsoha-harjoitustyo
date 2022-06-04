@@ -69,3 +69,16 @@ def get_all_not_in_project_by_project_id(project_id):
              AND p_m.contract_end_time IS NULL
     ) AND w.visible=TRUE"""
     return db.session.execute(sql, {"project_id":project_id}).fetchall()
+
+def get_all_with_projects_tasks_and_comments_info():
+    sql = """SELECT id, name,
+    (SELECT COUNT(*) FROM project_members WHERE worker_id=workers.id AND contract_end_time IS NULL) AS projects,
+    (SELECT COUNT(*) FROM projects WHERE manager_id=workers.id) AS managed_projects,
+    (SELECT COUNT(*) FROM tasks WHERE status='Complete' AND project_id IN 
+    (SELECT project_id FROM project_members WHERE worker_id=workers.id AND contract_end_time IS NULL)) AS completed_tasks,
+    (SELECT COUNT(*) FROM tasks WHERE status='Incomplete' AND project_id IN 
+    (SELECT project_id FROM project_members WHERE worker_id=workers.id AND contract_end_time IS NULL)) AS incomplete_tasks,
+    (SELECT COUNT(*) FROM tasks WHERE status='OVERDUE' AND project_id IN 
+    (SELECT project_id FROM project_members WHERE worker_id=workers.id AND contract_end_time IS NULL)) AS overdue_tasks
+    FROM workers WHERE visible=TRUE"""
+    return db.session.execute(sql).fetchall()

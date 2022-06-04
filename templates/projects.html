@@ -4,30 +4,30 @@
     Projects
 {% endblock %}
 
-{% block heading_1 %}
-    Projects
-{% endblock %}
-
 {% block content %}
-
-{% for project in projects %}
-    <ul>
-    <li><a href="/projects/{{ project.id }}">{{ project.name }}</a></li>
-        <ul>
-            <li>{{ project.current_workers + project.past_workers }} workers</li>
-                <ul>
-                    <li>{{ project.current_workers }} current workers</li>
-                    <li>{{ project.past_workers }} past workers</li>
-                </ul>
-            <li>{{ project.completed_tasks + project.incomplete_tasks + project.overdue_tasks }} tasks</li>
-                <ul>
-                    <li>{{ project.completed_tasks }} completed tasks</li>
-                    <li>{{ project.incomplete_tasks }} incomplete tasks</li>
-                    <li>{{ project.overdue_tasks }} overdue tasks</li>
-                </ul>
-        </ul>
-    </ul>
-{% endfor %}
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Project</th>
+            <th scope="col">Current workers</th>
+            <th scope="col">Past workers</th>
+            <th scope="col">Completed tasks</th>
+            <th scope="col">Incompleted tasks</th>
+            <th scope="col">Overdue tasks</th>
+        </tr>
+        <tbody>
+            {% for project in projects %}
+                <tr>
+                    <th scope="row"><a href="/projects/{{ project.id }}">{{ project.name }}</a></th>
+                    <td>{{ project.current_workers }}</td>
+                    <td>{{ project.past_workers }}</td>
+                    <td>{{ project.completed_tasks }}</td>
+                    <td>{{ project.incomplete_tasks }}</td>
+                    <td>{{ project.overdue_tasks }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>        
+</table>
 {% if session.name %}
     <p>Create project:</p>
     <form action="/projects" method="POST" oninput="checkProjectCreationForm('project_creation_name_input', 'project_name_input_error', 'project_creation_submit_button', {{ name_min_length }}, {{ name_max_length }})">

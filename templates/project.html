@@ -51,14 +51,19 @@
                     </form>
                 {% endif %}
                 <p>Comments by project members:</p>
-                {% for comment in comments[task.id] %}
-                    <p>{{ comment[0].name }} ({{ comment[1].date_and_time }}): {{ comment[1].content }}</p>
+                {% for comment in comments %}
+                    {% if comment.task_id ==  task.id %}
+                        <p>{{ comment.author }} ({{ comment.date_and_time }}): {{ comment.content }}</p>
+                    {% endif %}
                 {% endfor %}
                 {% if session.id == project.manager_id %}
                     <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/add_comment" method="POST" oninput="checkCommentCreationForm('comment_content_input_{{ task.id }}', 'comment_content_input_error_{{ task.id }}', 'comment_creation_submit_button_{{ task.id }}', {{ comment_content_min_length }}, {{ comment_content_max_length }})">
-                        <input id="comment_content_input_{{ task.id }}" type="text" name="content" rows="1" cols="100"></input>
-                        <input id="comment_creation_submit_button_{{ task.id }}" type="submit" value="Add comment" disabled>
-                        <b><span id="comment_content_input_error_{{ task.id }}" style="color: red;"></span></b>
+                        <div class="form-group">
+                            <label for="comment_content_input_{{ task.id }}">Add comment:</label>
+                            <input id="comment_content_input_{{ task.id }}" type="text" name="content" rows="1" cols="100"></input>
+                            <b><span id="comment_content_input_error_{{ task.id }}" style="color: red;"></span></b>
+                        </div>
+                        <input id="comment_creation_submit_button_{{ task.id }}" type="submit" value="Add" disabled>
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
                     {% for message in comment_messages %}

@@ -4,12 +4,28 @@
     Workers
 {% endblock %}
 
-{% block heading_1 %}
-    Workers
-{% endblock %}
-
 {% block content %}            
-    {% for worker in workers %}
-        <p><a href="/workers/{{ worker.id }}">{{ worker.name }}</a></p>
-    {% endfor %}
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Worker</th>
+                <th scope="col">Manages projects</th>
+                <th scope="col">Works in projects</th>
+                <th scope="col">Completed tasks</th>
+                <th scope="col">Incompleted tasks</th>
+                <th scope="col">Overdue tasks</th>
+            </tr>
+            <tbody>
+                {% for worker in workers %}
+                    <tr>
+                        <th scope="row"><a href="/workers/{{ worker.id }}">{{ worker.name }}</a></th>
+                        <td>{{ worker.managed_projects }}</td>
+                        <td>{{ worker.projects }}</td>
+                        <td>{{ worker.completed_tasks }}</td>
+                        <td>{{ worker.incomplete_tasks }}</td>
+                        <td>{{ worker.overdue_tasks }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>        
+    </table>
 {% endblock %}

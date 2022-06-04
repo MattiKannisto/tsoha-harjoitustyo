@@ -58,7 +58,8 @@ def create(name):
 def get_all_with_tasks_and_workers_info():
     sql = """SELECT id, manager_id, name,
     (SELECT COUNT(*) FROM project_members WHERE project_id=projects.id AND contract_end_time IS NULL) AS current_workers,
-    (SELECT COUNT(*) FROM project_members WHERE project_id=projects.id AND contract_end_time IS NOT NULL) AS past_workers,
+    (SELECT COUNT(DISTINCT worker_id) FROM project_members WHERE project_id=projects.id AND contract_end_time IS NOT NULL AND name NOT IN
+    (SELECT name FROM project_members WHERE project_id=projects.id AND contract_end_time IS NULL)) AS past_workers,
     (SELECT COUNT(*) FROM tasks WHERE project_id=projects.id AND status='Complete') AS completed_tasks,
     (SELECT COUNT(*) FROM tasks WHERE project_id=projects.id AND status='Incomplete') AS incomplete_tasks,
     (SELECT COUNT(*) FROM tasks WHERE project_id=projects.id AND status='OVERDUE') AS overdue_tasks

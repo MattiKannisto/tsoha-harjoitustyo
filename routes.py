@@ -54,10 +54,12 @@ def register():
         password = request.form["password"]
         retyped_password = request.form["re-typed password"]
         
-        error_messages = (errors.get_tables_text_field_error_messages_by_min_and_max_length(
-                          workers.TABLE_NAME, "name", name, workers.NAME_MIN_LENGTH, workers.NAME_MAX_LENGTH) +
-           errors.get_passwords_dont_match_error_message(password, retyped_password) +
-           errors.get_password_error_message_by_min_and_max_length(password, workers.PASSWORD_MIN_LENGTH, workers.PASSWORD_MAX_LENGTH))
+        error_messages = errors.get_tables_text_field_error_messages_by_min_and_max_length(
+                         workers.TABLE_NAME, "name", name, workers.NAME_MIN_LENGTH,
+                         workers.NAME_MAX_LENGTH)
+        error_messages += errors.get_passwords_dont_match_error_message(password, retyped_password)
+        error_messages += errors.get_password_error_message_by_min_and_max_length(password,
+                          workers.PASSWORD_MIN_LENGTH, workers.PASSWORD_MAX_LENGTH)
 
         if error_messages:
             return render_template("register.html", messages=error_messages,
@@ -76,23 +78,22 @@ def register():
 def login():
     name = request.form["name"]
     password = request.form["password"]
-    
     if not workers.get_one_by_name_and_password(name, password):
         return render_template("index.html", message="Incorrect username or password!")
     
     workers.login(name, password)
     
-    return redirect("/workers/" + str(session["id"]))
+    return redirect(request.referrer)
 
 @app.route("/logout", methods=["POST"])
 def logout():
     workers.logout()
     
-    return redirect("/")
+    return redirect(request.referrer)
 
 @app.route("/workers/", methods=["GET"])
 def workers_list():
-    all_workers = workers.get_all()
+    all_workers = workers.get_all_with_projects_tasks_and_comments_info()
     
     return render_template("workers.html", workers=all_workers)
 
@@ -166,20 +167,12 @@ def project(id):
 
     project_workers = workers.get_all_by_project_id(id)
     available_workers = workers.get_all_not_in_project_by_project_id(id)
-
     project_tasks = tasks.get_all_by_project_id(id)
-    all_tasks_comments = {}
-    for task in project_tasks:
-        tasks_comments = comments.get_all_by_task_id(task.id)
-        comments_with_authors = []
-        for comment in tasks_comments:
-            comments_with_authors.append((workers.get_one_by_id(comment.worker_id), comment))
+    project_tasks_comments = comments.get_all_with_authors_by_project_id(id)
 
-        all_tasks_comments[task.id] = comments_with_authors
-
-    return render_template("project.html", project=project, tasks=project_tasks,
+    return render_template("project.html", project=project, tasks=project_tasks, comments = project_tasks_comments,
                             available_workers=available_workers, project_workers=project_workers,
-                            comments = all_tasks_comments, comment_content_min_length=comments.CONTENT_MIN_LENGTH,
+                            comment_content_min_length=comments.CONTENT_MIN_LENGTH,
                             comment_content_max_length=comments.CONTENT_MAX_LENGTH, task_name_min_length=
                             tasks.NAME_MIN_LENGTH, task_name_max_length=tasks.NAME_MAX_LENGTH,
                             task_description_min_length=tasks.DESCRIPTION_MIN_LENGTH, task_description_max_length=
@@ -237,12 +230,7 @@ def add_comment_to_task(project_id, task_id):
     content = request.form["content"]
     worker_id = session["id"]
 
-    error_messages = errors.get_tables_text_field_error_messages_by_min_and_max_length(
-                          comments.TABLE_NAME, "content", content, comments.CONTENT_MIN_LENGTH, comments.CONTENT_MAX_LENGTH)
-    if error_messages:
-        print("toimii")
-        # Tähän tarvitaan joku keino antaa virheilmoitukset redirect-parametrina
-
-    comments.create(task_id, worker_id, content)
+    if comments.correct_length(content):
+        comments.create(task_id, worker_id, content)
 
     return redirect("/projects/"+str(project_id))
