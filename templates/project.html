@@ -44,9 +44,9 @@
                         <input type="submit" value="Remove task from the project">
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
-                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST" oninput="checkChangeTaskDeadlineForm('change_deadline_input', 'change_deadline_submit_button')">
-                        <input id="change_deadline_input" type="date" name="deadline"> 
-                        <input id="change_deadline_submit_button" type="submit" value="Change deadline" disabled>
+                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST" oninput="checkChangeTaskDeadlineForm('change_deadline_input_{{ task.id }}', 'change_deadline_submit_button_{{ task.id }}')">
+                        <input id="change_deadline_input_{{ task.id }}" type="date" name="deadline"> 
+                        <input id="change_deadline_submit_button_{{ task.id }}"+{{ task.id }} type="submit" value="Change deadline" disabled>
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
                 {% endif %}
@@ -55,10 +55,10 @@
                     <p>{{ comment[0].name }} ({{ comment[1].date_and_time }}): {{ comment[1].content }}</p>
                 {% endfor %}
                 {% if session.id == project.manager_id %}
-                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/add_comment" method="POST" oninput="checkCommentCreationForm('comment_content_input', 'comment_content_input_error', 'comment_creation_submit_button', {{ comment_content_min_length }}, {{ comment_content_max_length }})">
-                        <input id="comment_content_input" type="text" name="content" rows="1" cols="100"></input>
-                        <input id="comment_creation_submit_button" type="submit" value="Add comment" disabled>
-                        <b><span id="comment_content_input_error" style="color: red;"></span></b>
+                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/add_comment" method="POST" oninput="checkCommentCreationForm('comment_content_input_{{ task.id }}', 'comment_content_input_error_{{ task.id }}', 'comment_creation_submit_button_{{ task.id }}', {{ comment_content_min_length }}, {{ comment_content_max_length }})">
+                        <input id="comment_content_input_{{ task.id }}" type="text" name="content" rows="1" cols="100"></input>
+                        <input id="comment_creation_submit_button_{{ task.id }}" type="submit" value="Add comment" disabled>
+                        <b><span id="comment_content_input_error_{{ task.id }}" style="color: red;"></span></b>
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
                     {% for message in comment_messages %}
