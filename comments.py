@@ -2,6 +2,10 @@ from datetime import datetime
 
 from database import db
 
+TABLE_NAME = "comments"
+CONTENT_MIN_LENGTH = 1
+CONTENT_MAX_LENGTH = 100
+
 def create(task_id, worker_id, content):
     date_and_time = datetime.now().isoformat(' ', 'seconds')
 

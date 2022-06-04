@@ -1,60 +1,42 @@
-function checkRegisterForm(){
-    var nameInputValue = document.getElementById("nameInput").value
-    var passwordInputValue = document.getElementById("passwordInput").value
-    var reTypedPasswordInputValue = document.getElementById("reTypedPasswordInput").value
-    var inputValues = [nameInputValue, passwordInputValue, reTypedPasswordInputValue]
+function checkRegisterForm(nameInputFieldId, nameInputErrorFieldId, passwordInputFieldId, passwordInputErrorFieldId,
+                           reTypedPasswordInputFieldId, reTypedPasswordInputErrorFieldId, submitButtonId,
+                           nameMinLength, nameMaxLength, passwordMinLength, passwordMaxLength){
 
-    generateNameErrors(nameInputValue, "nameInputError")
-    generatePasswordErrors(passwordInputValue)
-    generateReTypedPasswordErrors(reTypedPasswordInput)
+    generateInputFieldErrors(nameInputFieldId, nameInputErrorFieldId, nameMinLength, nameMaxLength)
+    generateInputFieldErrors(passwordInputFieldId, passwordInputErrorFieldId, passwordMinLength, passwordMaxLength)
+    generateReTypedPasswordErrors(passwordInputFieldId, reTypedPasswordInputFieldId, reTypedPasswordInputErrorFieldId)
 
-    var nameInputError = document.getElementById("nameInputError").innerText
-    var passwordInputError = document.getElementById("passwordInputError").innerText
-    var reTypedPasswordInputError = document.getElementById("reTypedPasswordInputError").innerText
-    var inputErrors = [nameInputError, passwordInputError, reTypedPasswordInputError]
- 
-    const lengthEqualsToZero = (parameter) => {return parameter.length === 0}
-    const lengthCreaterThanZero = (parameter) => {return parameter.length > 0}
+    allContainText = noFieldEmpty([nameInputFieldId, passwordInputFieldId, reTypedPasswordInputFieldId])
+    noErrors = noErrorMessages([nameInputErrorFieldId, passwordInputErrorFieldId, reTypedPasswordInputErrorFieldId])
 
-    if (arrayElementsMeetCondition(inputValues, lengthEqualsToZero) && arrayElementsMeetCondition(inputErrors, lengthCreaterThanZero)){
-        document.getElementById("registerSubmitButton").disabled = false
-    } else {
-        document.getElementById("registerSubmitButton").disabled = true
-    }
+    disableSubmitButtonConditionsNotMet([allContainText, noErrors], submitButtonId)
 }
 
-function generateNameErrors(name, errorFieldId){
-    if (name.length > 0 && name.length < 3){
-        document.getElementById(errorFieldId).innerText = "Name needs to be at least 3 characters long!"
-    } else if (name.length >= 20){
-        document.getElementById(errorFieldId).innerText = "Name can be 20 characters long at the maximum!"
+function generateInputFieldErrors(inputFieldId, errorFieldId, minLength, maxLength){
+    input = document.getElementById(inputFieldId).value
+        
+    if (input.length > 0 && input.length < minLength){
+        document.getElementById(errorFieldId).innerText = "Needs to be at least " + minLength.toString() + " characters long!"
+    } else if (input.length >= maxLength){
+        document.getElementById(errorFieldId).innerText = "Can be " + maxLength.toString() + " characters long at the maximum!"
     } else {
         document.getElementById(errorFieldId).innerText = ""
     }
 }
 
-function generatePasswordErrors(password){
-    if (password.length > 0 && password.length < 8){
-        document.getElementById("passwordInputError").innerText = "Password needs to be at least 8 characters long!"
-    } else if (password.length >= 30){
-        document.getElementById("passwordInputError").innerText = "Password can be 30 characters long at the maximum!"
-    } else {
-        document.getElementById("passwordInputError").innerText = ""
-    }
-}
+function generateReTypedPasswordErrors(passwordInputFieldId, reTypedPasswordInputFieldId, reTypedPasswordInputErrorFieldId){
+    var password = document.getElementById(passwordInputFieldId).value
+    var reTypedPassword = document.getElementById(reTypedPasswordInputFieldId).value    
 
-function generateReTypedPasswordErrors(){
-    var password = document.getElementById("passwordInput").value
-    var reTypedPassword = document.getElementById("reTypedPasswordInput").value
     if (reTypedPassword.length > 0 && password != reTypedPassword){
-        document.getElementById("reTypedPasswordInputError").innerText = "Passwords do not match!"
+        document.getElementById(reTypedPasswordInputErrorFieldId).innerText = "Passwords do not match!"
     } else {
-        document.getElementById("reTypedPasswordInputError").innerText = ""
+        document.getElementById(reTypedPasswordInputErrorFieldId).innerText = ""
     }
 }
 
 function arrayElementsMeetCondition(array, conditionFunction){
-    if (array.length === 0){
+    if (array.length <= 0){
         return true
     } else if (conditionFunction(array.shift())){
         return false
@@ -63,37 +45,43 @@ function arrayElementsMeetCondition(array, conditionFunction){
     }
 }
 
-function checkProjectCreationForm(){
-    var projectNameInputValue = document.getElementById("projectCreationNameInput").value
-    
-    const lengthEqualsToZero = (parameter) => {return parameter.length === 0}
-    const lengthCreaterThanZero = (parameter) => {return parameter.length > 0}
+function checkProjectCreationForm(nameInputFieldId, nameInputErrorFieldId, submitButtonId, nameMinLength, nameMaxLength){
+    generateInputFieldErrors(nameInputFieldId, nameInputErrorFieldId, nameMinLength, nameMaxLength)
 
-    generateNameErrors(projectNameInputValue, "projectNameInputError")
+    allContainText = noFieldEmpty([nameInputFieldId])
+    noErrors = noErrorMessages([nameInputErrorFieldId])
 
-    var projectNameInputError = document.getElementById("projectNameInputError").innerText
+    disableSubmitButtonConditionsNotMet([allContainText, noErrors], submitButtonId)
+}
 
-    if (arrayElementsMeetCondition([projectNameInputValue], lengthEqualsToZero) && arrayElementsMeetCondition([projectNameInputError], lengthCreaterThanZero)){
-        document.getElementById("projectCreationSubmitButton").disabled = false
+function checkLoginForm(nameInputFieldId, passwordInputFieldId, submitButtonId){
+    allContainText = noFieldEmpty([nameInputFieldId, passwordInputFieldId])
+
+    disableSubmitButtonConditionsNotMet([allContainText], submitButtonId)
+}
+
+function noErrorMessages(textInputFieldIds){
+    const fieldNotEmpty = (fieldId) => {return document.getElementById(fieldId).innerHTML.length > 0}
+
+    return arrayElementsMeetCondition(textInputFieldIds, fieldNotEmpty)
+}
+
+function noFieldEmpty(textInputFieldIds){   
+    const fieldEmpty = (fieldId) => {return document.getElementById(fieldId).value.length === 0}
+
+    return arrayElementsMeetCondition(textInputFieldIds, fieldEmpty)
+}
+
+function disableSubmitButtonConditionsNotMet(conditions, submitButtonId){   
+    if (conditions.length <= 0){
+        document.getElementById(submitButtonId).disabled = false
+    } else if (conditions.shift() === true){
+        return disableSubmitButtonConditionsNotMet(conditions, submitButtonId)
     } else {
-        document.getElementById("projectCreationSubmitButton").disabled = true
+        document.getElementById(submitButtonId).disabled = true
     }
 }
 
-function checkLoginForm(){
-    var nameInputValue = document.getElementById("loginNameInput").value
-    var passwordInputValue = document.getElementById("loginPasswordInput").value
-    inputValues = [nameInputValue, passwordInputValue]
-
-    const lengthEqualsToZero = (parameter) => {return parameter.length === 0}
-
-    if (arrayElementsMeetCondition(inputValues, lengthEqualsToZero)){
-        document.getElementById("loginSubmitButton").disabled = false
-    } else {
-        document.getElementById("loginSubmitButton").disabled = true
-    }
-}
-
-function removeJavascriptErrorMessage(errorFieldId){
-    document.getElementById(errorFieldId).innerText = ""
+function removeTextIfJavascriptEnabled(fieldId){
+    document.getElementById(fieldId).innerText = ""
 }

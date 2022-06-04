@@ -9,20 +9,22 @@
 {% endblock %}
 {% block login_logout %}{% endblock %}
 {% block content %}    
-    <form action="/register" method="POST" oninput="checkRegisterForm()">
+    <form action="/register" method="POST" oninput="checkRegisterForm('name_input', 'name_input_error', 'password_input', 'password_input_error',
+        're_typed_password_input', 're_typed_password_input_error', 'register_submit_button',
+        {{ name_min_length }}, {{ name_max_length }}, {{ password_min_length }}, {{ password_max_length}})">
         Username:
-        <input id="nameInput" type="text" name="name" rows="1" cols="40"></text>
-        <b><span id="nameInputError" style="color: red;"></span></b>
+        <input id="name_input" type="text" name="name" rows="1" cols="40"></text>
+        <b><span id="name_input_error" style="color: red;"></span></b>
         <br>
         Password:
-        <input id="passwordInput" type="password" name="password" rows="1" cols="40"></text>
-        <b><span id="passwordInputError" style="color: red;"></span></b>
+        <input id="password_input" type="password" name="password" rows="1" cols="40"></text>
+        <b><span id="password_input_error" style="color: red;"></span></b>
         <br>
         Re-type password:
-        <input id="reTypedPasswordInput" type="password" name="re-typed password" rows="1" cols="40"></text>
-        <b><span id="reTypedPasswordInputError" style="color: red;"></span></b>
+        <input id="re_typed_password_input" type="password" name="re-typed password" rows="1" cols="40"></text>
+        <b><span id="re_typed_password_input_error" style="color: red;"></span></b>
         <br>
-        <input id="registerSubmitButton" type="submit" value="Register" disabled>
+        <input id="register_submit_button" type="submit" value="Register" disabled>
     </form>
     
     {% for message in messages %}

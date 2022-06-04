@@ -1,10 +1,13 @@
 from flask import redirect, render_template, session, request, abort
 
+import datetime
+
 from app import app
 import workers
 import projects
 import tasks
 import comments
+import errors
 
 
 def abort_forbidden_if_any_condition_not_met(condition_list):
@@ -26,6 +29,13 @@ def project_manager_id_is_logged_in_worker_id(project_id):
 
     return project.manager_id == session["id"]
 
+def valid_date(valided_date):
+    try:
+        date_in_valid_format = datetime.datetime.strptime(valided_date, "%Y-%m-%d").date()
+        return True
+    except:
+        return False
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -33,21 +43,34 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
-    
-    name = request.form["name"]
-    password = request.form["password"]
-    retyped_password = request.form["re-typed password"]
-    
-    error_messages = workers.get_creation_error_messages(name, password, retyped_password)
-    if error_messages:
-        return render_template("register.html", messages=error_messages)
-    
-    workers.create(name, password)
-    
-    workers.login(name, password)
+        return render_template("register.html", name_min_length=workers.NAME_MIN_LENGTH,
+                                name_max_length=workers.NAME_MAX_LENGTH,
+                                password_min_length=workers.PASSWORD_MIN_LENGTH,
+                                password_max_length=workers.PASSWORD_MAX_LENGTH)
 
-    return redirect("/workers/" + str(session["id"]))
+    
+    if request.method == "POST":
+        name = request.form["name"]
+        password = request.form["password"]
+        retyped_password = request.form["re-typed password"]
+        
+        error_messages = (errors.get_tables_text_field_error_messages_by_min_and_max_length(
+                          workers.TABLE_NAME, "name", name, workers.NAME_MIN_LENGTH, workers.NAME_MAX_LENGTH) +
+           errors.get_passwords_dont_match_error_message(password, retyped_password) +
+           errors.get_password_error_message_by_min_and_max_length(password, workers.PASSWORD_MIN_LENGTH, workers.PASSWORD_MAX_LENGTH))
+
+        if error_messages:
+            return render_template("register.html", messages=error_messages,
+                                    name_min_length=workers.NAME_MIN_LENGTH,
+                                    name_max_length=workers.NAME_MAX_LENGTH,
+                                    password_min_length=workers.PASSWORD_MIN_LENGTH,
+                                    password_max_length=workers.PASSWORD_MAX_LENGTH)
+        
+        workers.create(name, password)
+        
+        workers.login(name, password)
+
+        return redirect("/workers/" + str(session["id"]))
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -108,7 +131,10 @@ def add_task_to_project(project_id):
 
     name = request.form["name"]
     description = request.form["description"]
-    tasks.create(project_id, name, description)
+    deadline = request.form["deadline"]
+    # Tarkistus että on validi päivämäärä yms. tarkistukset
+    if valid_date(deadline):
+        tasks.create(project_id, name, description, deadline)
     
     return redirect("/projects/"+str(project_id))
 
@@ -118,6 +144,17 @@ def remove_task_from_project(project_id, task_id):
         [csrf_token_correct(), project_manager_id_is_logged_in_worker_id(project_id)])
 
     tasks.remove_by_id(task_id)
+    
+    return redirect("/projects/"+str(project_id))
+
+@app.route("/projects/<int:project_id>/tasks/<int:task_id>/change_deadline", methods=["POST"])
+def change_task_deadline(project_id, task_id):
+    abort_forbidden_if_any_condition_not_met(
+        [csrf_token_correct(), project_manager_id_is_logged_in_worker_id(project_id)]) # task_belongs_to_project(task_id, project_id)
+
+    deadline = request.form["deadline"]
+    if valid_date(deadline):
+        tasks.update_deadline_by_id(task_id, deadline)
     
     return redirect("/projects/"+str(project_id))
 
@@ -166,23 +203,28 @@ def remove_worker_from_project(project_id, worker_id):
 
     return redirect("/projects/"+str(project_id))
 
-@app.route("/projects", methods=["GET"])
-def manage_projects():
-    all_projects = projects.get_all()
-    return render_template("projects.html", projects=all_projects)
+@app.route("/projects", methods=["GET", "POST"])
+def all_projects():
+    if request.method == "GET":
+        all_projects_with_tasks_and_workers = projects.get_all_with_tasks_and_workers_info()
+        return render_template("projects.html", projects=all_projects_with_tasks_and_workers,
+                                name_min_length=projects.NAME_MIN_LENGTH,
+                                name_max_length=projects.NAME_MAX_LENGTH)
 
-@app.route("/create_project", methods=["POST"])
-def create_project():
-    abort_forbidden_if_any_condition_not_met([csrf_token_correct()])
+    if request.method == "POST":
+        abort_forbidden_if_any_condition_not_met([csrf_token_correct()])
 
-    name = request.form["name"]
-    error_messages = projects.get_creation_error_messages(name)
-    if error_messages:
-        all_projects = projects.get_all()
-        return render_template("projects.html", projects=all_projects,
-                               messages=error_messages)
-    projects.create(name)
-    return redirect("/projects")
+        name = request.form["name"]
+        error_messages = errors.get_tables_text_field_error_messages_by_min_and_max_length(
+                          projects.TABLE_NAME, "name", name, projects.NAME_MIN_LENGTH, projects.NAME_MAX_LENGTH)
+        if error_messages:
+            all_projects = projects.get_all_with_tasks_and_workers_info()
+            return render_template("projects.html", projects=all_projects,
+                                messages=error_messages,
+                                name_min_length=projects.NAME_MIN_LENGTH,
+                                name_max_length=projects.NAME_MAX_LENGTH)
+        projects.create(name)
+        return redirect("/projects")
 
 @app.route("/projects/<int:project_id>/tasks/<int:task_id>/add_comment", methods=["POST"])
 def add_comment_to_task(project_id, task_id):
@@ -190,6 +232,13 @@ def add_comment_to_task(project_id, task_id):
 
     content = request.form["content"]
     worker_id = session["id"]
+
+    error_messages = errors.get_tables_text_field_error_messages_by_min_and_max_length(
+                          comments.TABLE_NAME, "content", content, comments.CONTENT_MIN_LENGTH, comments.CONTENT_MAX_LENGTH)
+    if error_messages:
+        print("toimii")
+        # Tähän tarvitaan joku keino antaa virheilmoitukset redirect-parametrina
+
     comments.create(task_id, worker_id, content)
 
     return redirect("/projects/"+str(project_id))

@@ -7,6 +7,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import db
 
+TABLE_NAME = "workers"
+NAME_MIN_LENGTH = 3
+NAME_MAX_LENGTH = 30
+PASSWORD_MIN_LENGTH = 12
+PASSWORD_MAX_LENGTH = 40
 
 def login(name, password):
     logged_in_worker = get_one_by_name_and_password(name, password)
@@ -19,33 +24,6 @@ def logout():
     del session["id"]
     del session["name"]
     del session["csrf_token"]
-
-def get_creation_error_messages(name, password, retyped_password):
-    error_messages = get_worker_name_error_messages([], name)
-    error_messages = get_passwords_dont_match_error_message(error_messages, password, retyped_password)
-    error_messages = get_password_error_message(error_messages, password)
-    return error_messages
-
-def get_worker_name_error_messages(error_messages, name):
-    if len(name) < 3:
-        error_messages.append("Name needs to be at least 3 characters!")
-    if len(name) >= 30:
-        error_messages.append("Name cannot be over 30 characters!")
-    if get_one_by_name(name):
-        error_messages.append("Username already taken, please choose another one!")
-    return error_messages
-
-def get_passwords_dont_match_error_message(error_messages, password, retyped_password):
-    if password != retyped_password:
-        error_messages.append("Passwords do not match!")        
-    return error_messages
-
-def get_password_error_message(error_messages, password):
-    if len(password) < 8:
-        error_messages.append("Password needs to be at least 8 characters!")
-    if len(password) >= 30:
-        error_messages.append("Password cannot be over 30 characters!")
-    return error_messages
 
 def create(name, password):
     hashed_password = generate_password_hash(password)

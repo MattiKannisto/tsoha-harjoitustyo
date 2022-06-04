@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block content %}
-
     <p>Workers of the project:</p>
         {% for worker in project_workers %}
             <p>{{ worker.name }} </p>
@@ -45,22 +44,25 @@
                         <input type="submit" value="Remove task from the project">
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
-                {% else %}
-                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_status" method="POST">
-                        {{ task.name }} ({{ task.status }})
-                        <input type="submit" value="Change status to completed">
+                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST">
+                        <input type="date" id="deadline" name="deadline"> 
+                        <input type="submit" value="Change deadline">
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
                 {% endif %}
+                <p>Comments by project members:</p>
                 {% for comment in comments[task.id] %}
                     <p>{{ comment[0].name }} ({{ comment[1].date_and_time }}): {{ comment[1].content }}</p>
                 {% endfor %}
                 {% if session.id == project.manager_id %}
-                    <form action="/tasks/{{ task.id }}/add_comment" method="POST">
-                        <input id="Comment content" type="text" name="content" rows="1" cols="100"></text>
+                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/add_comment" method="POST" oninput="checkTaskCreationForm('projectCreationNameInput', 'projectNameInputError', 'projectCreationSubmitButton', {{ name_min_length }}, {{ name_max_length }})"">
+                        <input id="comment_content" type="text" name="content" rows="1" cols="100"></text>
                         <input type="submit" value="Add comment">
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
+                    {% for message in comment_messages %}
+                        {{ message }}
+                    {% endfor %}
                 {% endif %}
             </li>
         {% endfor %}
@@ -71,9 +73,11 @@
     {% if session.id == project.manager_id %}
             <form action="/projects/{{ project.id }}/add_task" method="POST">
                 <span>Name: </span>
-                <input id="addTaskName" type="text" name="name" rows="1" cols="40"></text>
+                <input id="add_task_name" type="text" name="name" rows="1" cols="40"></text>
                 <span>Description: </span>
-                <input id="addTaskDescription" type="text" name="description" rows="1" cols="40"></text>
+                <input id="add_task_description" type="text" name="description" rows="1" cols="40"></text>
+                <label for="deadline">Deadline:</label>
+                <input type="date" id="deadline" name="deadline"> 
                 <input type="submit" value="Add task to the project">
                 <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
             </form>

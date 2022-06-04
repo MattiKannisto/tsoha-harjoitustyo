@@ -11,20 +11,37 @@
 {% block content %}
 
 {% for project in projects %}
-    <p><a href="/projects/{{ project.id }}">{{ project.name }}</a></p>
+    <ul>
+    <li><a href="/projects/{{ project.id }}">{{ project.name }}</a></li>
+        <ul>
+            <li>{{ project.current_workers + project.past_workers }} workers</li>
+                <ul>
+                    <li>{{ project.current_workers }} current workers</li>
+                    <li>{{ project.past_workers }} past workers</li>
+                </ul>
+            <li>{{ project.completed_tasks + project.incomplete_tasks + project.overdue_tasks }} tasks</li>
+                <ul>
+                    <li>{{ project.completed_tasks }} completed tasks</li>
+                    <li>{{ project.incomplete_tasks }} incomplete tasks</li>
+                    <li>{{ project.overdue_tasks }} overdue tasks</li>
+                </ul>
+        </ul>
+    </ul>
 {% endfor %}
 {% if session.name %}
     <p>Create project:</p>
-    <form action="/create_project" method="POST" oninput="checkProjectCreationForm()">
+    <form action="/projects" method="POST" oninput="checkProjectCreationForm('project_creation_name_input', 'project_name_input_error', 'project_creation_submit_button', {{ name_min_length }}, {{ name_max_length }})">
         Name:
-        <input id="projectCreationNameInput" type="text" name="name" rows="1" cols="40"></text>
-        <b><span id="projectNameInputError" style="color: red;"></span></b>
+        <input id="project_creation_name_input" type="text" name="name" rows="1" cols="40"></text>
+        <b><span id="project_name_input_error" style="color: red;"></span></b>
         <br>
-        <input id="projectCreationSubmitButton" type="submit" value="Create" disabled>
+        <input id="project_creation_submit_button" type="submit" value="Create" disabled>
         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     </form>
     {% for message in messages %}
         <b><p style="color: red">{{ message }}</p></b>
     {% endfor %}
+{% else %}
+<b><p>Please log in to create new projects!</p></b>
 {% endif %}  
 {% endblock %}

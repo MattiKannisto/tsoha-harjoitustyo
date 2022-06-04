@@ -4,6 +4,10 @@ from flask import session
 
 from database import db
 
+TABLE_NAME = "projects"
+NAME_MIN_LENGTH = 5
+NAME_MAX_LENGTH = 50
+
 def get_one_by_id(project_id):
     sql = "SELECT id, name, manager_id FROM projects WHERE id=:id"
     result = db.session.execute(sql, {"id":project_id}).fetchone()
@@ -40,15 +44,6 @@ def get_one_by_name(name):
     sql = "SELECT id, name FROM projects WHERE name=:name"
     return db.session.execute(sql, {"name":name}).fetchone()
 
-def get_creation_error_messages(name):
-    error_messages = get_project_name_error_messages(name)
-    return error_messages
-
-def get_project_name_error_messages(name):
-    if get_one_by_name(name):
-        return ["Project name already taken, please choose another one!"]
-    return []
-
 def change_manager(project_id, manager_id):
     sql = "UPDATE projects SET manager_id=:manager_id WHERE id=:project_id"
     db.session.execute(sql, {"project_id":project_id, "manager_id":manager_id})
@@ -60,8 +55,14 @@ def create(name):
     db.session.execute(sql, {"name":name, "manager_id":session["id"]})
     db.session.commit()
 
-def get_all():
-    sql = "SELECT id, manager_id, name FROM projects"
+def get_all_with_tasks_and_workers_info():
+    sql = """SELECT id, manager_id, name,
+    (SELECT COUNT(*) FROM project_members WHERE project_id=projects.id AND contract_end_time IS NULL) AS current_workers,
+    (SELECT COUNT(*) FROM project_members WHERE project_id=projects.id AND contract_end_time IS NOT NULL) AS past_workers,
+    (SELECT COUNT(*) FROM tasks WHERE project_id=projects.id AND status='Complete') AS completed_tasks,
+    (SELECT COUNT(*) FROM tasks WHERE project_id=projects.id AND status='Incomplete') AS incomplete_tasks,
+    (SELECT COUNT(*) FROM tasks WHERE project_id=projects.id AND status='OVERDUE') AS overdue_tasks
+    FROM projects"""
     return db.session.execute(sql).fetchall()
 
 def get_all_by_worker_id(worker_id):
