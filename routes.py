@@ -179,7 +179,11 @@ def project(id):
 
     return render_template("project.html", project=project, tasks=project_tasks,
                             available_workers=available_workers, project_workers=project_workers,
-                            comments = all_tasks_comments)
+                            comments = all_tasks_comments, comment_content_min_length=comments.CONTENT_MIN_LENGTH,
+                            comment_content_max_length=comments.CONTENT_MAX_LENGTH, task_name_min_length=
+                            tasks.NAME_MIN_LENGTH, task_name_max_length=tasks.NAME_MAX_LENGTH,
+                            task_description_min_length=tasks.DESCRIPTION_MIN_LENGTH, task_description_max_length=
+                            tasks.DESCRIPTION_MAX_LENGTH)
 
 @app.route("/projects/<int:project_id>/add_worker/<int:worker_id>", methods=["POST"])
 def add_worker_to_project(project_id, worker_id):

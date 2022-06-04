@@ -60,6 +60,33 @@ function checkLoginForm(nameInputFieldId, passwordInputFieldId, submitButtonId){
     disableSubmitButtonConditionsNotMet([allContainText], submitButtonId)
 }
 
+function checkCommentCreationForm(contentInputFieldId, contentInputErrorFieldId, submitButtonId, contentMinLength, contentMaxLength){
+    generateInputFieldErrors(contentInputFieldId, contentInputErrorFieldId, contentMinLength, contentMaxLength)
+
+    allContainText = noFieldEmpty([contentInputFieldId])
+
+    noErrors = noErrorMessages([contentInputErrorFieldId])
+
+    disableSubmitButtonConditionsNotMet([allContainText, noErrors], submitButtonId)
+}
+
+function checkTaskCreationForm(nameInputFieldId, nameInputErrorFieldId, descriptionInputFieldId, descriptionInputErrorFieldId, deadlineInput, submitButtonId, nameMinLength, nameMaxLength, descriptionMinLength, descriptionMaxLength){
+    generateInputFieldErrors(nameInputFieldId, nameInputErrorFieldId, nameMinLength, nameMaxLength)
+    generateInputFieldErrors(descriptionInputFieldId, descriptionInputErrorFieldId, descriptionMinLength, descriptionMaxLength)
+
+    allContainText = noFieldEmpty([nameInputFieldId, descriptionInputFieldId, deadlineInput])
+
+    noErrors = noErrorMessages([nameInputErrorFieldId, descriptionInputErrorFieldId])
+
+    disableSubmitButtonConditionsNotMet([allContainText, noErrors], submitButtonId)
+}
+
+function checkChangeTaskDeadlineForm(deadlineInput, submitButtonId){
+    allContainText = noFieldEmpty([deadlineInput])
+
+    disableSubmitButtonConditionsNotMet([allContainText], submitButtonId)
+}
+
 function noErrorMessages(textInputFieldIds){
     const fieldNotEmpty = (fieldId) => {return document.getElementById(fieldId).innerHTML.length > 0}
 

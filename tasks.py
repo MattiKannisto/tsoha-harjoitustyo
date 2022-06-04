@@ -4,6 +4,12 @@ from datetime import date, timedelta
 
 from database import db
 
+TABLE_NAME = "tasks"
+NAME_MIN_LENGTH = 2
+NAME_MAX_LENGTH = 100
+DESCRIPTION_MIN_LENGTH = 5
+DESCRIPTION_MAX_LENGTH = 500
+
 def get_all_by_project_id(id):
     update_overdue_tasks_by_project_id(id)
     update_on_time_tasks_by_project_id(id)
