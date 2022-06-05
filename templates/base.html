@@ -23,29 +23,39 @@
         </div>
         <div class="ml-auto">
             {% block login_logout %}
-                {% if session.name %}
-                    <form action="/logout" method="POST">
-                        <span>Logged in as <a href="/workers/{{session.id}}">{{session.name}} </a></span>
+            {% if session.name %}
+                    <form style="display: inline-block;" action="/logout" method="POST">
+                        <span>Logged in as {{session.name}} </span>
                         <input type="submit" value="Logout" class="btn btn-dark">
                     </form>
+                    <form style="display: inline-block;" action="/resign" method="GET">
+                        <input type="submit" value="Resign" class="btn btn-dark">
+                    </form>
                 {% else %}
-                    <form action="/login" method="POST" oninput="checkLoginForm('login_name_input', 'login_password_input', 'login_submit_button')">
+                    <form action="/login" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['login_name_input', 'login_password_input'], 'login_submit_button')">
                         Username:
                         <input id="login_name_input" type="text" name="name" class="form-command" rows="1" cols="40"></input>
                         Password:
                         <input id="login_password_input" type="password" name="password" class="form-command" rows="1" cols="40"></input>
                         <input id="login_submit_button" type="submit" value="Login" class="btn btn-dark" disabled>
-                        {% if not message %}
-                            <p style="opacity: 0.0;">This acts only to reserve space for the error message</p>
-                        {% else %}                           
-                            <p style="color: red"><b> {{ message }} </b></p>
-                        {% endif %}
                     </form>
                 {% endif %}
             {% endblock %}            
+            {% block login_error_message %}
+                {% if login_error_message %}
+                    <b><p style="color: red">{{ login_error_message }}</p></b>
+                {% else %}
+                    <p style="opacity: 0.0;">This acts only to reserve space for the error message</p>
+                {% endif %}
+            {% endblock %}
         </div>
     </div>
     <h1>{% block heading_1 %}{% endblock %}</h1>
     {% block content %}{% endblock %}
+    {% block general_error_message %}
+        {% if general_error_message %}
+            <b><p style="color: red">{{ general_error_message }}</p></b>
+        {% endif %}
+    {% endblock %}
     <script src="/static/javascript/functions.js"></script>
 </body>

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Resignation
+{% endblock %}
+
+{% block heading_1 %}
+    Resignation form
+{% endblock %}
+
+{% block content %}
+    {% if projects %}
+        {% for project in projects %}
+            <p>Works in project <a href="/projects/{{project.id}}">{{project.name}}</a></p>
+        {% endfor %}
+    {% else %}
+        <p>You are not a manager in any projects. If you wish to resign, please click 'Resign' button below.</p>
+    {% endif %}
+    <form action="/resign" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['password_input'], 'resignation_submit_button')">
+        Sign by typing your password:
+        <input id="password_input" type="password" name="password" rows="1" cols="40"></text>
+        <input id="resignation_submit_button" type="submit" value="Submit" disabled>
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+    </form>
+{% endblock %}

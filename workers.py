@@ -19,11 +19,16 @@ def login(name, password):
         session["id"] = logged_in_worker.id
         session["name"] = logged_in_worker.name
         session["csrf_token"] = secrets.token_hex(16)
+        session["general_error_message"] = None
+        if session.get("login_error_message"):
+            del session["login_error_message"]
 
 def logout():
     del session["id"]
     del session["name"]
     del session["csrf_token"]
+    if session.get("general_error_message"):
+        del session["general_error_message"]
 
 def create(name, password):
     hashed_password = generate_password_hash(password)

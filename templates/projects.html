@@ -5,43 +5,40 @@
 {% endblock %}
 
 {% block content %}
-<table class="table">
-    <thead class="thead-dark">
-        <tr>
-            <th scope="col">Project</th>
-            <th scope="col">Current workers</th>
-            <th scope="col">Past workers</th>
-            <th scope="col">Completed tasks</th>
-            <th scope="col">Incompleted tasks</th>
-            <th scope="col">Overdue tasks</th>
-        </tr>
-        <tbody>
-            {% for project in projects %}
-                <tr>
-                    <th scope="row"><a href="/projects/{{ project.id }}">{{ project.name }}</a></th>
-                    <td>{{ project.current_workers }}</td>
-                    <td>{{ project.past_workers }}</td>
-                    <td>{{ project.completed_tasks }}</td>
-                    <td>{{ project.incomplete_tasks }}</td>
-                    <td>{{ project.overdue_tasks }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>        
-</table>
-{% if session.name %}
-    <p>Create project:</p>
-    <form action="/projects" method="POST" oninput="checkProjectCreationForm('project_creation_name_input', 'project_name_input_error', 'project_creation_submit_button', {{ name_min_length }}, {{ name_max_length }})">
-        Name:
-        <input id="project_creation_name_input" type="text" name="name" rows="1" cols="40"></text>
-        <b><span id="project_name_input_error" style="color: red;"></span></b>
-        <br>
-        <input id="project_creation_submit_button" type="submit" value="Create" disabled>
-        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    </form>
-    {% for message in messages %}
-        <b><p style="color: red">{{ message }}</p></b>
-    {% endfor %}
-{% else %}
-<b><p>Please log in to create new projects!</p></b>
-{% endif %}  
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Project</th>
+                <th scope="col">Current workers</th>
+                <th scope="col">Past workers</th>
+                <th scope="col">Completed tasks</th>
+                <th scope="col">Incompleted tasks</th>
+                <th scope="col">Overdue tasks</th>
+            </tr>
+            <tbody>
+                {% for project in projects %}
+                    <tr>
+                        <th scope="row"><a href="/projects/{{ project.id }}">{{ project.name }}</a></th>
+                        <td>{{ project.current_workers }}</td>
+                        <td>{{ project.past_workers }}</td>
+                        <td>{{ project.completed_tasks }}</td>
+                        <td>{{ project.incomplete_tasks }}</td>
+                        <td>{{ project.overdue_tasks }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>        
+    </table>
+    {% if session.name %}
+        <p>Create project:</p>
+        <form action="/projects" method="POST" oninput="checkProjectCreationForm('project_creation_name_input', 'project_name_input_error', 'project_creation_submit_button', {{ name_min_length }}, {{ name_max_length }})">
+            Name:
+            <input id="project_creation_name_input" type="text" name="name" rows="1" cols="40"></text>
+            <b><span id="project_name_input_error" style="color: red;"></span></b>
+            <br>
+            <input id="project_creation_submit_button" type="submit" value="Create" disabled>
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        </form>
+    {% else %}
+        <b><p>Please log in to create new projects!</p></b>
+    {% endif %}  
 {% endblock %}

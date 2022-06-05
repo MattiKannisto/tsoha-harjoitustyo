@@ -44,7 +44,7 @@
                         <input type="submit" value="Remove task from the project">
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
-                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST" oninput="checkChangeTaskDeadlineForm('change_deadline_input_{{ task.id }}', 'change_deadline_submit_button_{{ task.id }}')">
+                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['change_deadline_input_{{ task.id }}'], 'change_deadline_submit_button_{{ task.id }}')">
                         <input id="change_deadline_input_{{ task.id }}" type="date" name="deadline"> 
                         <input id="change_deadline_submit_button_{{ task.id }}"+{{ task.id }} type="submit" value="Change deadline" disabled>
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">

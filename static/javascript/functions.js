@@ -54,8 +54,8 @@ function checkProjectCreationForm(nameInputFieldId, nameInputErrorFieldId, submi
     disableSubmitButtonConditionsNotMet([allContainText, noErrors], submitButtonId)
 }
 
-function checkLoginForm(nameInputFieldId, passwordInputFieldId, submitButtonId){
-    allContainText = noFieldEmpty([nameInputFieldId, passwordInputFieldId])
+function enableButtonIfNoInputFieldEmpty(inputFieldIds, submitButtonId){
+    allContainText = noFieldEmpty(inputFieldIds)
 
     disableSubmitButtonConditionsNotMet([allContainText], submitButtonId)
 }
@@ -79,12 +79,6 @@ function checkTaskCreationForm(nameInputFieldId, nameInputErrorFieldId, descript
     noErrors = noErrorMessages([nameInputErrorFieldId, descriptionInputErrorFieldId])
 
     disableSubmitButtonConditionsNotMet([allContainText, noErrors], submitButtonId)
-}
-
-function checkChangeTaskDeadlineForm(deadlineInput, submitButtonId){
-    allContainText = noFieldEmpty([deadlineInput])
-
-    disableSubmitButtonConditionsNotMet([allContainText], submitButtonId)
 }
 
 function noErrorMessages(textInputFieldIds){
