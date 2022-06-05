@@ -26,8 +26,5 @@
         <br>
         <input id="register_submit_button" type="submit" value="Register" disabled>
     </form>
-    
-    {% for message in messages %}
-        <b><p style="color: red">{{ message }}</p></b>
-    {% endfor %}
+    <b><p style="color: red">{{ error_message }}</p></b>
 {% endblock %}

@@ -52,17 +52,9 @@ def register():
     if request.method == "POST":
         name = request.form["name"]
         password = request.form["password"]
-        retyped_password = request.form["re-typed password"]
         
-        error_messages = errors.get_tables_text_field_error_messages_by_min_and_max_length(
-                         workers.TABLE_NAME, "name", name, workers.NAME_MIN_LENGTH,
-                         workers.NAME_MAX_LENGTH)
-        error_messages += errors.get_passwords_dont_match_error_message(password, retyped_password)
-        error_messages += errors.get_password_error_message_by_min_and_max_length(password,
-                          workers.PASSWORD_MIN_LENGTH, workers.PASSWORD_MAX_LENGTH)
-
-        if error_messages:
-            return render_template("register.html", messages=error_messages,
+        if workers.get_one_by_name(name):
+            return render_template("register.html", error_message="Username already taken, please choose another one!",
                                     name_min_length=workers.NAME_MIN_LENGTH,
                                     name_max_length=workers.NAME_MAX_LENGTH,
                                     password_min_length=workers.PASSWORD_MIN_LENGTH,
