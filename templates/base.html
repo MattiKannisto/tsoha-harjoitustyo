@@ -3,10 +3,11 @@
 <head>
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 </head>
-<body onload="removeTextIfJavascriptEnabled('javascript_disabled_error')" style="background-color:rgb(185, 180, 180); margin-top: 10px; margin-bottom: 10px; margin-left: 10px; margin-right: 10px;">
-    <p id="javascript_disabled_error" style="background-color:red;">It seems you have Javascript disabled in your browser! Please enable Javascript, the application does not work properly without it!</p>
+<body onload="removeTextIfJavascriptEnabled('javascript_disabled_error')">
+    <p id="javascript_disabled_error" class="error">It seems you have Javascript disabled in your browser! Please enable Javascript, the application does not work properly without it!</p>
     <div class="d-flex">
         <div class="mr-auto">
             <nav class="navbar navbar-expand-sm navbar-light">
@@ -43,7 +44,7 @@
             {% endblock %}            
             {% block login_error_message %}
                 {% if login_error_message %}
-                    <b><p style="color: red">{{ login_error_message }}</p></b>
+                    <p  class="error">{{ login_error_message }}</p>
                 {% else %}
                     <p style="opacity: 0.0;">This acts only to reserve space for the error message</p>
                 {% endif %}
@@ -54,8 +55,8 @@
     {% block content %}{% endblock %}
     {% block general_error_message %}
         {% if general_error_message %}
-            <b><p style="color: red">{{ general_error_message }}</p></b>
+            <p  class="error">{{ general_error_message }}</p>
         {% endif %}
     {% endblock %}
-    <script src="/static/javascript/functions.js"></script>
+    <script src="/static/functions.js"></script>
 </body>

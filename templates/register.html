@@ -5,25 +5,31 @@
 {% endblock %}
 
 {% block heading_1 %}
-    Register as a new user:
+    {% if not session.name %}
+        Register as a new user:
+    {% endif %}  
 {% endblock %}
 {% block login_logout %}{% endblock %}
-{% block content %}    
-    <form action="/register" method="POST" oninput="checkRegisterForm('name_input', 'name_input_error', 'password_input', 'password_input_error',
-        're_typed_password_input', 're_typed_password_input_error', 'register_submit_button',
-        {{ name_min_length }}, {{ name_max_length }}, {{ password_min_length }}, {{ password_max_length}})">
-        Username:
-        <input id="name_input" type="text" name="name" rows="1" cols="40"></text>
-        <b><span id="name_input_error" style="color: red;"></span></b>
-        <br>
-        Password:
-        <input id="password_input" type="password" name="password" rows="1" cols="40"></text>
-        <b><span id="password_input_error" style="color: red;"></span></b>
-        <br>
-        Re-type password:
-        <input id="re_typed_password_input" type="password" name="re-typed password" rows="1" cols="40"></text>
-        <b><span id="re_typed_password_input_error" style="color: red;"></span></b>
-        <br>
-        <input id="register_submit_button" type="submit" value="Register" disabled>
-    </form>
+{% block content %}
+    {% if not session.name %}
+        <form action="/register" method="POST" oninput="checkRegisterForm('name_input', 'name_input_error', 'password_input', 'password_input_error',
+            're_typed_password_input', 're_typed_password_input_error', 'register_submit_button',
+            {{ name_min_length }}, {{ name_max_length }}, {{ password_min_length }}, {{ password_max_length}})">
+            <label for="name_input" style="width: 140px">Username:</label>
+            <input id="name_input" type="text" name="name" rows="1" cols="40"></text>
+            <span id="name_input_error" class="error"></span>
+            <br>
+            <label for="password_input" style="width: 140px">Password:</label>
+            <input id="password_input" type="password" name="password" rows="1" cols="40"></text>
+            <span id="password_input_error" class="error"></span>
+            <br>
+            <label for="re_typed_password_input" style="width: 140px">Re-typed password:</label>
+            <input id="re_typed_password_input" type="password" name="re-typed password" rows="1" cols="40"></text>
+            <span id="re_typed_password_input_error" class="error"></span>
+            <br>
+            <input id="register_submit_button" type="submit" value="Register" class="btn btn-dark" disabled>
+        </form>
+    {% else %}
+        <p>This is a registration form for unregistered people. There is nothing for you here.</p>
+    {% endif %}  
 {% endblock %}

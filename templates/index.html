@@ -9,11 +9,17 @@
 {% endblock %}
 
 {% block content %}
-<p>Polle is a project management system that allows one to manage which projects your team members parcipate in.</p>
-<p>Polle allows you to browse the <a href="/projects">projects</a> and <a href="/workers">workers</a>.</p>
-
+    <p>Polle is a project management system that allows you to create projects and add workers registered in the system to your projects.
+    Projects consist of tasks with deadlines. The tasks can have three statuses: 'incomplete' if the deadline is in the future, 'overdue' if 
+    the deadline has already passed, and 'completed' if the task has been is considered done by the project manager and the project manager has
+    given the task this status. Once the task status has been set to 'completed', the project manager cannot change its deadline anymore
+    and the project workers or the manager cannot comment it. The tasks can be commented by the project members and the project manager can change deadlines
+    of the tasks. All projects and the possibility to create a new project can be found <a href="/projects">here</a>. Worker 
+    <a href="/workers">listing</a> can be used to check the workload of the workers registered in the system.
+    </p>
     {% if not session.name %}
         <br>
-        <p>New to Polle? Register <a href="/register">here</a>.</p>
+        <p>Click <a href="/register">here</a> to register in the system. If you want, you can later resign from using the system.
+        Please note that your user information will not deleted from the system completely but is rather hidden.</p>
     {% endif %}  
 {% endblock %}

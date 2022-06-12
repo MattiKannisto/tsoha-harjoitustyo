@@ -10,12 +10,12 @@ NAME_MAX_LENGTH = 100
 DESCRIPTION_MIN_LENGTH = 5
 DESCRIPTION_MAX_LENGTH = 500
 
-def get_all_by_project_id(id):
+def get_all_by_status_and_project_id(status, id):
     update_overdue_tasks_by_project_id(id)
     update_on_time_tasks_by_project_id(id)
 
-    sql = "SELECT id, name, description, status, deadline FROM tasks WHERE project_id=:id"
-    result = db.session.execute(sql, {"id":id}).fetchall()
+    sql = "SELECT id, name, description, status, deadline FROM tasks WHERE project_id=:id AND status=:status"
+    result = db.session.execute(sql, {"id":id, "status": status}).fetchall()
     return result
 
 def create(project_id, name, description, deadline):
@@ -31,18 +31,23 @@ def remove_by_id(id):
 def update_overdue_tasks_by_project_id(project_id):
     today = date.today()
 
-    sql = "UPDATE tasks SET status='OVERDUE' WHERE project_id=:project_id AND deadline<:today;"
+    sql = "UPDATE tasks SET status='OVERDUE' WHERE project_id=:project_id AND deadline<:today AND status='Incomplete';"
     db.session.execute(sql, {"project_id":project_id, "today":today})
     db.session.commit()
 
 def update_on_time_tasks_by_project_id(project_id):
     today = date.today()
 
-    sql = "UPDATE tasks SET status='Incomplete' WHERE project_id=:project_id AND deadline>=:today;"
+    sql = "UPDATE tasks SET status='Incomplete' WHERE project_id=:project_id AND deadline>=:today AND status='OVERDUE';"
     db.session.execute(sql, {"project_id":project_id, "today":today})
     db.session.commit()
 
 def update_deadline_by_id(task_id, deadline):
     sql = "UPDATE tasks SET deadline=:deadline WHERE id=:task_id;"
     db.session.execute(sql, {"task_id":task_id, "deadline":deadline})
+    db.session.commit()
+
+def set_status_completed(task_id):
+    sql = "UPDATE tasks SET status='Completed' WHERE id=:task_id"
+    db.session.execute(sql, {"task_id":task_id})
     db.session.commit()

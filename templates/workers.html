@@ -18,7 +18,7 @@
             <tbody>
                 {% for worker in workers %}
                     <tr>
-                        <th scope="row"><a href="/workers/{{ worker.id }}">{{ worker.name }}</a></th>
+                        <th>{{ worker.name }}</th>
                         <td>{{ worker.managed_projects }}</td>
                         <td>{{ worker.projects }}</td>
                         <td>{{ worker.completed_tasks }}</td>

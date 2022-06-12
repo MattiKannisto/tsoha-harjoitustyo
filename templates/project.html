@@ -9,88 +9,176 @@
 {% endblock %}
 
 {% block content %}
-    <p>Workers of the project:</p>
-        {% for worker in project_workers %}
-            <p>{{ worker.name }} </p>
-            {% if session.id == project.manager_id %}
-                <form action="/projects/{{ project.id }}/remove_worker/{{ worker.id }}" method="POST">
-                    <input type="submit" value="Remove from project">
-                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                </form>
-                {% if project.manager_id != worker.id %}
-                    <form action="/projects/{{ project.id }}/change_manager/{{ worker.id }}" method="POST">
-                        <input type="submit" value="Pass manager status">
-                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    </form>
-                {% endif %}
-            {% endif %}
-        {% endfor %}
+    <p><b>Manager:</b> {{ project_manager.name }}</p>
+    <p><b>Workers:</b></p>
+        <ul>
+            {% for worker in project_workers %}
+                <li>
+                    <span>{{ worker.name }} </span>
+                    {% if session.id == project.manager_id %}
+                        <form style="display: inline-block" action="/projects/{{ project.id }}/remove_worker/{{ worker.id }}" method="POST">
+                            <input class="btn btn-dark" type="submit" value="Remove from project">
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        </form>
+                        {% if project.manager_id != worker.id %}
+                            <form style="display: inline-block" action="/projects/{{ project.id }}/change_manager/{{ worker.id }}" method="POST">
+                                <input class="btn btn-dark" type="submit" value="Pass manager status">
+                                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
         {% if session.id == project.manager_id %}
             <p>Add workers to project:</p>
-                {% for worker in available_workers %}
-                    <form action="/projects/{{ project.id }}/add_worker/{{ worker.id }}" method="POST">
-                        <span>{{ worker.name }} </span>
-                        <input type="submit" value="Add to project">
+                    <form action="/projects/{{ project.id }}/add_worker" method="POST">
+                        <select name="worker_id">
+                            {% for worker in available_workers %}
+                                <option value="{{ worker.id }}">{{ worker.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input class="btn btn-dark" type="submit" value="Add to project">
                         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    </form>
-                {% endfor %}
+                </form>
         {% endif %}
-    <h3>Tasks:</h3>
-    {% if tasks %}
-        {% for task in tasks %}
-                {% if session.id == project.manager_id %}
-                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/remove" method="POST">
-                        <h4>{{ task.name }} ({{ task.status }})</h4>
-                        <input type="submit" value="Remove task from the project">
-                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    </form>
-                    <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['change_deadline_input_{{ task.id }}'], 'change_deadline_submit_button_{{ task.id }}')">
-                        <input id="change_deadline_input_{{ task.id }}" type="date" name="deadline"> 
-                        <input id="change_deadline_submit_button_{{ task.id }}"+{{ task.id }} type="submit" value="Change deadline" disabled>
-                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    </form>
-                {% endif %}
-                <p>Comments by project members:</p>
-                {% for comment in comments %}
-                    {% if comment.task_id ==  task.id %}
-                        <p>{{ comment.author }} ({{ comment.date_and_time }}): {{ comment.content }}</p>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4">
+                <h3>Overdue tasks:</h3>
+                <hr>
+                {% for task in overdue_tasks %}
+                    <h4>{{ task.name }}</h4>
+                    {% if session.id == project.manager_id %}
+                        <form style="display: inline-block;" action="/projects/{{ project.id }}/tasks/{{ task.id }}/remove" method="POST">
+                            <input class="btn btn-dark" type="submit" value="Remove task">
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        </form>
+                        <form style="display: inline-block;" action="/projects/{{ project.id }}/tasks/{{ task.id }}/set_status_completed" method="POST">
+                            <input class="btn btn-dark" type="submit" value="Mark completed">
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        </form>
                     {% endif %}
-                {% endfor %}
-                {% if session.id == project.manager_id %}
+                    {% if session.id == project.manager_id %}
+                        <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['change_deadline_input_{{ task.id }}'], 'change_deadline_submit_button_{{ task.id }}')">
+                            <label for="change_deadline_input_{{ task.id }}"><b>Deadline:</b></label>
+                            <input style="display: inline-block;" id="change_deadline_input_{{ task.id }}" type="date" name="deadline" value={{ task.deadline }}> 
+                            <input class="btn btn-dark" style="display: inline-block;" id="change_deadline_submit_button_{{ task.id }}"+{{ task.id }} type="submit" value="Change deadline" disabled>
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        </form>
+                    {% else %}
+                        <p><b>Deadline:</b> {{ task.deadline }}</p>
+                    {% endif %}
+                    <p><b>Description:</b> {{ task.description }}</p>
+                    <p><b>Comments:</b></p>
+                    <ul>
+                        {% for comment in comments %}
+                            {% if comment.task_id ==  task.id %}
+                                <li><b>{{ comment.author }} ({{ comment.date_and_time }}):</b> {{ comment.content }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    {% if logged_in_user_project_worker_or_manager %}
                     <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/add_comment" method="POST" oninput="checkCommentCreationForm('comment_content_input_{{ task.id }}', 'comment_content_input_error_{{ task.id }}', 'comment_creation_submit_button_{{ task.id }}', {{ comment_content_min_length }}, {{ comment_content_max_length }})">
                         <div class="form-group">
-                            <label for="comment_content_input_{{ task.id }}">Add comment:</label>
-                            <input id="comment_content_input_{{ task.id }}" type="text" name="content" rows="1" cols="100"></input>
-                            <b><span id="comment_content_input_error_{{ task.id }}" style="color: red;"></span></b>
+                            <input style="display: inline-block;" id="comment_content_input_{{ task.id }}" type="text" name="content" rows="1" cols="100"></input>
+                            <input class="btn btn-dark" style="display: inline-block;" id="comment_creation_submit_button_{{ task.id }}" type="submit" value="Add comment" disabled>
+                            <span id="comment_content_input_error_{{ task.id }}" class="error"></span>
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                         </div>
-                        <input id="comment_creation_submit_button_{{ task.id }}" type="submit" value="Add" disabled>
-                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
                     {% for message in comment_messages %}
-                        {{ message }}
+                            {{ message }}
+                        {% endfor %}
+                    {% endif %}
+                    <hr>
+                {% endfor %}
+            </div>
+            <div class="col-4">
+                <h3>Incomplete tasks:</h3>
+                <hr>
+                {% for task in incomplete_tasks %}
+                    <h4>{{ task.name }}</h4>
+                    {% if session.id == project.manager_id %}
+                        <form style="display: inline-block;" action="/projects/{{ project.id }}/tasks/{{ task.id }}/remove" method="POST">
+                            <input class="btn btn-dark" type="submit" value="Remove task">
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        </form>
+                        <form style="display: inline-block;" action="/projects/{{ project.id }}/tasks/{{ task.id }}/set_status_completed" method="POST">
+                            <input class="btn btn-dark" type="submit" value="Mark completed">
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        </form>
+                    {% endif %}
+                    {% if session.id == project.manager_id %}
+                        <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/change_deadline" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['change_deadline_input_{{ task.id }}'], 'change_deadline_submit_button_{{ task.id }}')">
+                            <label for="change_deadline_input_{{ task.id }}"><b>Deadline:</b></label>
+                            <input style="display: inline-block;" id="change_deadline_input_{{ task.id }}" type="date" name="deadline" value={{ task.deadline }}> 
+                            <input class="btn btn-dark" style="display: inline-block;" id="change_deadline_submit_button_{{ task.id }}"+{{ task.id }} type="submit" value="Change deadline" disabled>
+                            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        </form>
+                    {% else %}
+                        <p><b>Deadline:</b> {{ task.deadline }}</p>
+                    {% endif %}
+                    <p><b>Description:</b> {{ task.description }}</p>
+                    <p><b>Comments:</b></p>
+                    <ul>
+                        {% for comment in comments %}
+                            {% if comment.task_id ==  task.id %}
+                                <li><b>{{ comment.author }} ({{ comment.date_and_time }}):</b> {{ comment.content }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    {% if logged_in_user_project_worker_or_manager %}
+                        <form action="/projects/{{ project.id }}/tasks/{{ task.id }}/add_comment" method="POST" oninput="checkCommentCreationForm('comment_content_input_{{ task.id }}', 'comment_content_input_error_{{ task.id }}', 'comment_creation_submit_button_{{ task.id }}', {{ comment_content_min_length }}, {{ comment_content_max_length }})">
+                            <div class="form-group">
+                                <input style="display: inline-block;" id="comment_content_input_{{ task.id }}" type="text" name="content" rows="1" cols="100"></input>
+                                <input class="btn btn-dark" style="display: inline-block;" id="comment_creation_submit_button_{{ task.id }}" type="submit" value="Add comment" disabled>
+                                <span id="comment_content_input_error_{{ task.id }}" class="error"></span>
+                                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                            </div>
+                        </form>
+                        {% for message in comment_messages %}
+                            {{ message }}
+                        {% endfor %}
+                    {% endif %}
+                    <hr>
+                {% endfor %}
+            </div>
+            <div class="col-4">
+                <h3>Completed tasks:</h3>
+                <hr>
+                {% for task in completed_tasks %}
+                    <h4>{{ task.name }}</h4>
+                    <p><b>Description:</b> {{ task.description }}</p>
+                    <p><b>Comments:</b></p>
+                    <ul>
+                    {% for comment in comments %}
+                        {% if comment.task_id ==  task.id %}
+                            <li><b>{{ comment.author }} ({{ comment.date_and_time }}):</b> {{ comment.content }}</li>
+                        {% endif %}
                     {% endfor %}
-                {% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>This project does not have tasks yet.</p>
-    {% endif %}
-    {% if session.id == project.manager_id %}
-            <form action="/projects/{{ project.id }}/add_task" method="POST" oninput="checkTaskCreationForm('task_name_input', 'task_name_input_error', 'task_description_input', 'task_description_input_error', 'deadline_input', 'task_creation_submit_button', {{ task_name_min_length }}, {{ task_name_max_length }}, {{ task_description_min_length }}, {{ task_description_max_length }})">
-                <span>Name: </span>
-                <input id="task_name_input" type="text" name="name" rows="1" cols="40"></input>
-                <b><span id="task_name_input_error" style="color: red;"></span></b>
-                <br>
-                <span>Description: </span>
-                <input id="task_description_input" type="text" name="description" rows="1" cols="40"></input>
-                <b><span id="task_description_input_error" style="color: red;"></span></b>
-                <br>
-                <label for="deadline">Deadline:</label>
-                <input type="date" id="deadline_input" name="deadline">
-                <br>
-                <input id="task_creation_submit_button" type="submit" value="Add task to the project" disabled>
-                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-            </form>
+                    </ul>
+                    <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+        {% if session.id == project.manager_id %}
+            <h3>Add new task to the project:</h3>
+                <form action="/projects/{{ project.id }}/add_task" method="POST" oninput="checkTaskCreationForm('task_name_input', 'task_name_input_error', 'task_description_input', 'task_description_input_error', 'deadline_input', 'task_creation_submit_button', {{ task_name_min_length }}, {{ task_name_max_length }}, {{ task_description_min_length }}, {{ task_description_max_length }})">
+                    <span>Name: </span>
+                    <input id="task_name_input" type="text" name="name" rows="1" cols="40"></input>
+                    <span id="task_name_input_error" class="error"></span>
+                    <br>
+                    <span>Description: </span>
+                    <input id="task_description_input" type="text" name="description" rows="1" cols="40"></input>
+                    <span id="task_description_input_error" class="error"></span>
+                    <br>
+                    <label for="deadline">Deadline:</label>
+                    <input type="date" id="deadline_input" name="deadline">
+                    <br>
+                    <input class="btn btn-dark" id="task_creation_submit_button" type="submit" value="Add task to the project" disabled>
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                </form>
     {% endif %}
 {% endblock %}

@@ -33,9 +33,9 @@
         <form action="/projects" method="POST" oninput="checkProjectCreationForm('project_creation_name_input', 'project_name_input_error', 'project_creation_submit_button', {{ name_min_length }}, {{ name_max_length }})">
             Name:
             <input id="project_creation_name_input" type="text" name="name" rows="1" cols="40"></text>
-            <b><span id="project_name_input_error" style="color: red;"></span></b>
+            <span id="project_name_input_error" class="error"></span>
             <br>
-            <input id="project_creation_submit_button" type="submit" value="Create" disabled>
+            <input id="project_creation_submit_button" type="submit" value="Create" class="btn btn-dark" disabled>
             <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
         </form>
     {% else %}

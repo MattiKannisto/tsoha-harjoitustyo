@@ -9,17 +9,22 @@
 {% endblock %}
 
 {% block content %}
-    {% if projects %}
-        {% for project in projects %}
-            <p>Works in project <a href="/projects/{{project.id}}">{{project.name}}</a></p>
-        {% endfor %}
+    {% if incomplete_projects %}
+        <p class="error">Before you can resign, you need to pass manager status to someone else in your projects with
+                         incomplete or overdue tasks:</p>
+        <ul>
+            {% for project in incomplete_projects %}
+                <li><a href="/projects/{{project.id}}">{{project.name}}</a></li>
+            {% endfor %}
+        </ul>
     {% else %}
-        <p>You are not a manager in any projects. If you wish to resign, please click 'Resign' button below.</p>
+        <p>You are not a manager in any incomplete projects. If you wish to resign, please sign your resignation by entering your
+            password below and by clicking 'Resign' button.</p>
+        <form action="/resign" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['password_input'], 'resignation_submit_button')">
+            <label for="password_input">Password:</label>
+            <input id="password_input" type="password" name="password" rows="1" cols="40"></text>
+            <input class="btn btn-dark" id="resignation_submit_button" type="submit" value="Resign" disabled>
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        </form>
     {% endif %}
-    <form action="/resign" method="POST" oninput="enableButtonIfNoInputFieldEmpty(['password_input'], 'resignation_submit_button')">
-        Sign by typing your password:
-        <input id="password_input" type="password" name="password" rows="1" cols="40"></text>
-        <input id="resignation_submit_button" type="submit" value="Submit" disabled>
-        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    </form>
 {% endblock %}

@@ -72,8 +72,7 @@ def get_all_by_worker_id(worker_id):
              AND p_m.contract_end_time IS NULL)"""
     return db.session.execute(sql, {"worker_id":worker_id}).fetchall()
 
-def get_all_by_manager_id(manager_id):
-    sql = """SELECT p.id, p.manager_id, p.name FROM projects p WHERE p.id IN (
-             SELECT p_m.project_id FROM project_members p_m WHERE p_m.worker_id=:worker_id
-             AND p_m.contract_end_time IS NULL)"""
-    return db.session.execute(sql, {"worker_id":manager_id}).fetchall()
+def get_all_with_incomplete_or_overdue_tasks_by_manager_id(manager_id):
+    sql = """SELECT id, manager_id, name FROM projects WHERE manager_id=:manager_id AND id IN
+             (SELECT project_id FROM tasks WHERE status='Incomplete' OR status='OVERDUE')""" 
+    return db.session.execute(sql, {"manager_id":manager_id}).fetchall()
