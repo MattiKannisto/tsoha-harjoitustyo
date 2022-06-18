@@ -1,27 +1,38 @@
-from xmlrpc.client import boolean
-
-from datetime import date, timedelta
+from datetime import date, datetime
 
 from database import db
 
-TABLE_NAME = "tasks"
 NAME_MIN_LENGTH = 2
 NAME_MAX_LENGTH = 100
 DESCRIPTION_MIN_LENGTH = 5
 DESCRIPTION_MAX_LENGTH = 500
 
-def get_all_by_status_and_project_id(status, id):
+def valid_date(valided_date):
+    try:
+        date_in_valid_format = datetime.strptime(valided_date, "%Y-%m-%d").date()
+        return True
+    except:
+        print("date ei toimi")
+        return False
+
+def valid_name_length(name):
+    return NAME_MIN_LENGTH <= len(name) <= NAME_MAX_LENGTH
+
+def valid_description_length(description):
+    return DESCRIPTION_MIN_LENGTH <= len(description) <= DESCRIPTION_MAX_LENGTH
+
+def get_all_by_status_and_project_id_ordered_by_deadline(status, id):
     update_overdue_tasks_by_project_id(id)
     update_on_time_tasks_by_project_id(id)
 
-    sql = "SELECT id, name, description, status, deadline FROM tasks WHERE project_id=:id AND status=:status"
-    result = db.session.execute(sql, {"id":id, "status": status}).fetchall()
-    return result
+    sql = "SELECT id, name, description, status, deadline FROM tasks WHERE project_id=:id AND status=:status ORDER BY deadline"
+    return db.session.execute(sql, {"id":id, "status": status}).fetchall()
 
 def create(project_id, name, description, deadline):
-    sql = "INSERT INTO tasks (project_id, name, description, status, deadline) VALUES (:project_id, :name, :description, 'Incomplete', :deadline)"
-    db.session.execute(sql, {"project_id":project_id, "name":name, "description":description, "deadline":deadline})
-    db.session.commit()
+    if valid_name_length(name) and valid_description_length(description) and valid_date(deadline):
+        sql = "INSERT INTO tasks (project_id, name, description, status, deadline) VALUES (:project_id, :name, :description, 'Incomplete', :deadline)"
+        db.session.execute(sql, {"project_id":project_id, "name":name, "description":description, "deadline":deadline})
+        db.session.commit()
 
 def remove_by_id(id):
     sql = "DELETE FROM tasks WHERE id=:id"
@@ -43,9 +54,10 @@ def update_on_time_tasks_by_project_id(project_id):
     db.session.commit()
 
 def update_deadline_by_id(task_id, deadline):
-    sql = "UPDATE tasks SET deadline=:deadline WHERE id=:task_id;"
-    db.session.execute(sql, {"task_id":task_id, "deadline":deadline})
-    db.session.commit()
+    if valid_date(deadline):
+        sql = "UPDATE tasks SET deadline=:deadline WHERE id=:task_id;"
+        db.session.execute(sql, {"task_id":task_id, "deadline":deadline})
+        db.session.commit()
 
 def set_status_completed(task_id):
     sql = "UPDATE tasks SET status='Completed' WHERE id=:task_id"

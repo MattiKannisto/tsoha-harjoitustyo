@@ -2,29 +2,27 @@ from datetime import datetime
 
 from database import db
 
-TABLE_NAME = "comments"
 CONTENT_MIN_LENGTH = 2
 CONTENT_MAX_LENGTH = 100
 
-def correct_length(content):
+def valid_content_length(content):
     return CONTENT_MIN_LENGTH <= len(content) <= CONTENT_MAX_LENGTH
 
 def create(task_id, worker_id, content):
-    date_and_time = datetime.now().isoformat(' ', 'seconds')
+    if valid_content_length(content):
+        date_and_time = datetime.now().isoformat(' ', 'seconds')
 
-    sql = """INSERT INTO comments (task_id, worker_id, content, date_and_time) VALUES
-             (:task_id, :worker_id, :content, :date_and_time)"""
-    db.session.execute(sql, {"task_id":task_id, "worker_id":worker_id,
-                       "content":content, "date_and_time":date_and_time})
-    db.session.commit()
+        sql = """INSERT INTO comments (task_id, worker_id, content, date_and_time) VALUES
+                (:task_id, :worker_id, :content, :date_and_time)"""
+        db.session.execute(sql, {"task_id":task_id, "worker_id":worker_id,
+                        "content":content, "date_and_time":date_and_time})
+        db.session.commit()
 
 def get_all_by_task_id(task_id):
     sql = "SELECT id, worker_id, task_id, content, date_and_time FROM comments WHERE task_id=:id"
-    result = db.session.execute(sql, {"id":task_id}).fetchall()
-    return result
+    return db.session.execute(sql, {"id":task_id}).fetchall()
 
 def get_all_with_authors_by_project_id(project_id):
     sql = """SELECT id, (SELECT name FROM workers WHERE id=comments.worker_id) AS author, task_id, content, date_and_time FROM comments WHERE task_id IN
           (SELECT id FROM tasks WHERE project_id=:project_id)"""
-    result = db.session.execute(sql, {"project_id":project_id}).fetchall()
-    return result
+    return db.session.execute(sql, {"project_id":project_id}).fetchall()

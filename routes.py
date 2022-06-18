@@ -1,7 +1,5 @@
 from flask import redirect, render_template, session, request, abort
 
-import datetime
-
 from app import app
 import workers
 import projects
@@ -28,13 +26,6 @@ def project_manager_id_is_logged_in_worker_id(project_id):
 
     return project.manager_id == session["id"]
 
-def valid_date(valided_date):
-    try:
-        date_in_valid_format = datetime.datetime.strptime(valided_date, "%Y-%m-%d").date()
-        return True
-    except:
-        return False
-
 def extract_session_value(key):
     value = session.get(key)
     session[key] = None
@@ -55,19 +46,19 @@ def register():
                                 password_min_length=workers.PASSWORD_MIN_LENGTH,
                                 password_max_length=workers.PASSWORD_MAX_LENGTH)
 
-    
     if request.method == "POST":
         name = request.form["name"]
         password = request.form["password"]
         
-        if workers.get_one_by_name(name):
-            session["general_error_message"] = "Username already taken, please choose another one!"
-            return redirect(request.referrer)
+        session["general_error_message"] = workers.get_username_already_taken_error_message(name)
+            
+        if not session["general_error_message"]:
+            workers.create(name, password)
+            workers.login(name, password)
 
-        workers.create(name, password)
-        workers.login(name, password)
+            return redirect("/")
 
-        return redirect("/")
+        return redirect(request.referrer)
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -93,19 +84,6 @@ def workers_list():
     
     return render_template("workers.html",login_error_message=extract_session_value("login_error_message"),
                           general_error_message=extract_session_value("general_error_message"), workers=all_workers)
-
-@app.route("/workers/<int:id>", methods=["GET"])
-def worker(id):
-    worker = workers.get_one_by_id(id)
-
-    if not worker:
-        return redirect(request.referrer)
-    
-    workers_projects = projects.get_all_by_worker_id(id)
-    
-    return render_template("worker.html", login_error_message=extract_session_value("login_error_message"),
-                          general_error_message=extract_session_value("general_error_message"),
-                          worker=worker, projects=workers_projects)
 
 @app.route("/resign", methods=["GET", "POST"])
 def worker_resignation():
@@ -140,6 +118,7 @@ def worker_resignation():
 @app.route("/projects/<int:project_id>/change_manager/<int:worker_id>", methods=["POST"])
 def change_project_manager(project_id, worker_id):
     abort_forbidden_if_any_condition_not_met([csrf_token_correct()])
+
     projects.change_manager(project_id, worker_id)
 
     return redirect("/projects/" + str(project_id))
@@ -152,9 +131,8 @@ def add_task_to_project(project_id):
     name = request.form["name"]
     description = request.form["description"]
     deadline = request.form["deadline"]
-    # Tarkistus että on validi päivämäärä yms. tarkistukset
-    if valid_date(deadline):
-        tasks.create(project_id, name, description, deadline)
+
+    tasks.create(project_id, name, description, deadline)
     
     return redirect("/projects/"+str(project_id))
 
@@ -173,8 +151,8 @@ def change_task_deadline(project_id, task_id):
         [csrf_token_correct(), project_manager_id_is_logged_in_worker_id(project_id)]) # task_belongs_to_project(task_id, project_id)
 
     deadline = request.form["deadline"]
-    if valid_date(deadline):
-        tasks.update_deadline_by_id(task_id, deadline)
+
+    tasks.update_deadline_by_id(task_id, deadline)
     
     return redirect("/projects/"+str(project_id))
 
@@ -201,9 +179,9 @@ def project(id):
         logged_in_user_project_worker_or_manager = (projects.get_project_member_id_by_project_id_and_worker_id(id, session['id'])
                                                     or session['id'] is project.manager_id)
     available_workers = workers.get_all_not_in_project_by_project_id(id)
-    overdue_tasks = tasks.get_all_by_status_and_project_id('OVERDUE', id)
-    incomplete_tasks = tasks.get_all_by_status_and_project_id('Incomplete', id)
-    completed_tasks = tasks.get_all_by_status_and_project_id('Completed', id)
+    overdue_tasks = tasks.get_all_by_status_and_project_id_ordered_by_deadline('OVERDUE', id)
+    incomplete_tasks = tasks.get_all_by_status_and_project_id_ordered_by_deadline('Incomplete', id)
+    completed_tasks = tasks.get_all_by_status_and_project_id_ordered_by_deadline('Completed', id)
     project_tasks_comments = comments.get_all_with_authors_by_project_id(id)
 
     return render_template("project.html", project=project, login_error_message=extract_session_value("login_error_message"),
@@ -236,16 +214,15 @@ def remove_worker_from_project(project_id, worker_id):
     abort_forbidden_if_any_condition_not_met(
         [csrf_token_correct(), project_manager_id_is_logged_in_worker_id(project_id)])
 
-    project_member_id = projects.get_project_member_id_by_project_id_and_worker_id(project_id, worker_id)
-    if project_member_id:
-        projects.remove_worker_from_project(project_member_id.id)
+    projects.remove_worker_from_project(project_id, worker_id)
 
     return redirect("/projects/"+str(project_id))
 
 @app.route("/projects", methods=["GET", "POST"])
 def all_projects():
     if request.method == "GET":
-        all_projects_with_tasks_and_workers = projects.get_all_with_tasks_and_workers_info()
+        all_projects_with_tasks_and_workers = projects.get_all_latest_first_with_tasks_and_workers_info()
+        
         return render_template("projects.html", login_error_message=extract_session_value("login_error_message"),
                           general_error_message=extract_session_value("general_error_message"),
                           projects=all_projects_with_tasks_and_workers,
@@ -257,10 +234,9 @@ def all_projects():
 
         name = request.form["name"]
 
-        if projects.get_one_by_name(name):
-            session["general_error_message"] = "Project name already taken, please choose another one!"
-        else:
-            projects.create(name)
+        session["general_error_message"] = projects.get_project_name_already_in_use_error_message(name)
+
+        projects.create(name)
 
         return redirect("/projects")
 
@@ -271,7 +247,6 @@ def add_comment_to_task(project_id, task_id):
     content = request.form["content"]
     worker_id = session["id"]
 
-    if comments.correct_length(content):
-        comments.create(task_id, worker_id, content)
+    comments.create(task_id, worker_id, content)
 
     return redirect("/projects/"+str(project_id))

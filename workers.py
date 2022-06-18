@@ -1,4 +1,3 @@
-from xmlrpc.client import boolean
 import secrets
 
 from flask import session
@@ -7,11 +6,16 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import db
 
-TABLE_NAME = "workers"
 NAME_MIN_LENGTH = 3
 NAME_MAX_LENGTH = 30
 PASSWORD_MIN_LENGTH = 12
 PASSWORD_MAX_LENGTH = 40
+
+def valid_name_length(name):
+    return NAME_MIN_LENGTH <= len(name) <= NAME_MAX_LENGTH
+
+def valid_password_length(password):
+    return PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH
 
 def login(name, password):
     logged_in_worker = get_one_by_name_and_password(name, password)
@@ -31,10 +35,11 @@ def logout():
         del session["general_error_message"]
 
 def create(name, password):
-    hashed_password = generate_password_hash(password)
-    sql = "INSERT INTO workers (name, password, visible) VALUES (:name, :password, TRUE)"
-    db.session.execute(sql, {"name":name, "password":hashed_password})
-    db.session.commit()
+    if not get_one_by_name(name) and valid_name_length(name) and valid_password_length(password):
+        hashed_password = generate_password_hash(password)
+        sql = "INSERT INTO workers (name, password, visible) VALUES (:name, :password, TRUE)"
+        db.session.execute(sql, {"name":name, "password":hashed_password})
+        db.session.commit()
 
 def hide_one_by_id(id):
     sql = "UPDATE workers SET visible=FALSE WHERE id=:id"
@@ -45,6 +50,11 @@ def get_one_by_name(name):
     sql = "SELECT id, name FROM workers WHERE name=:name AND visible=TRUE"
     return db.session.execute(sql, {"name":name}).fetchone()
 
+def get_username_already_taken_error_message(name):
+    if get_one_by_name(name):
+        return "Username already taken, please choose another one!"
+    return None
+
 def get_one_by_name_and_password(name, password):
     sql = "SELECT id, name, password FROM workers WHERE name=:name AND visible=TRUE"
     result = db.session.execute(sql, {"name":name}).fetchone()
@@ -54,8 +64,7 @@ def get_one_by_name_and_password(name, password):
 
 def get_one_by_id(id):
     sql = "SELECT id, name FROM workers WHERE id=:id AND visible=TRUE"
-    result = db.session.execute(sql, {"id":id}).fetchone()
-    return result
+    return db.session.execute(sql, {"id":id}).fetchone()
 
 def get_all():
     sql = "SELECT id, name FROM workers WHERE visible=TRUE"
