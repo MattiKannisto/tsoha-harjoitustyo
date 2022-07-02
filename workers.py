@@ -34,6 +34,13 @@ def logout():
     if session.get("general_error_message"):
         del session["general_error_message"]
 
+def get_login_error_message(name, password):
+    if session.get("name") and not get_one_by_name_and_password(name, password):
+        return "Incorrect password!"
+    if not get_one_by_name_and_password(name, password):
+        return "Incorrect username or password!"
+    return None
+
 def create(name, password):
     if not get_one_by_name(name) and valid_name_length(name) and valid_password_length(password):
         hashed_password = generate_password_hash(password)
@@ -41,9 +48,9 @@ def create(name, password):
         db.session.execute(sql, {"name":name, "password":hashed_password})
         db.session.commit()
 
-def hide_one_by_id(id):
+def hide_one_by_id(worker_id):
     sql = "UPDATE workers SET visible=FALSE WHERE id=:id"
-    db.session.execute(sql, {"id":id})
+    db.session.execute(sql, {"id":worker_id})
     db.session.commit()
 
 def get_one_by_name(name):
@@ -62,13 +69,9 @@ def get_one_by_name_and_password(name, password):
         return result
     return None
 
-def get_one_by_id(id):
+def get_one_by_id(worker_id):
     sql = "SELECT id, name FROM workers WHERE id=:id AND visible=TRUE"
-    return db.session.execute(sql, {"id":id}).fetchone()
-
-def get_all():
-    sql = "SELECT id, name FROM workers WHERE visible=TRUE"
-    return db.session.execute(sql).fetchall()
+    return db.session.execute(sql, {"id":worker_id}).fetchone()
 
 def get_all_by_project_id(project_id):
     sql = """SELECT w.id, w.name FROM workers w WHERE w.id IN (
