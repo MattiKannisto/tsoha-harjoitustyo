@@ -53,9 +53,9 @@
     </div>
     <h1>{% block heading_1 %}{% endblock %}</h1>
     {% block content %}{% endblock %}
-    {% block general_error_message %}
-        {% if general_error_message %}
-            <p  class="error">{{ general_error_message }}</p>
+    {% block error_message %}
+        {% if error_message %}
+            <p  class="error">{{ error_message }}</p>
         {% endif %}
     {% endblock %}
     <script src="/static/functions.js"></script>

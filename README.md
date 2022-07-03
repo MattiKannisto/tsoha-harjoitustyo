@@ -1,5 +1,5 @@
 # Polle Project Manager
-Polle Project Manager allows one to manage 
+Polle Project Manager is a simple project management system that allows one to create and manage projects. Each project consists of tasks with deadlines and comments added by the project members.
 
 Polle Project Manager has following features:
 * User account management
@@ -11,8 +11,10 @@ Polle Project Manager has following features:
     - Logged in users can create new projects. The user who created the project will be set as the manager of that project
     - Project manager can add and remove workers from the project
     - Project manager can pass the manager status to workers participating in the project
-    - Project manager can add tasks to the project. The tasks will have a title, description and a deadline
+    - Project manager can add and remove tasks from the project. The tasks will have a title, description and a deadline
     - Project manager can change the deadline of the task
     - Project manager and workers of the project can add comments to the tasks of the project
+    - Anyone can view a list of projects with information regarding their current and past workers and tasks with different statuses
+    - Anyone can view a list of workers with information regarding the projects they manage or work in and tasks in those projects with different statuses
 
 [Heroku-linkin-kuvaus](linkki herokuun)

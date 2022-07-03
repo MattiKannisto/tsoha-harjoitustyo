@@ -182,7 +182,7 @@ def set_task_status_completed(project_id, task_id):
 
     return redirect("/projects/"+str(project_id))
 
-@app.route("/projects/<int:id>", methods=["GET"])
+@app.route("/projects/<int:project_id>", methods=["GET"])
 def single_project(project_id):
     project = projects.get_one_by_id(project_id)
 

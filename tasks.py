@@ -34,7 +34,7 @@ def get_all_by_status_and_project_id_sort_by_deadline(status, project_id):
 
     sql = """SELECT id, name, description, status, deadline FROM tasks WHERE project_id=:id AND
              status=:status ORDER BY deadline"""
-    return db.session.execute(sql, {"id":id, "status": status}).fetchall()
+    return db.session.execute(sql, {"id":project_id, "status": status}).fetchall()
 
 def create(project_id, name, description, deadline):
     if valid_name_length(name) and valid_description_length(description) and valid_date(deadline):
