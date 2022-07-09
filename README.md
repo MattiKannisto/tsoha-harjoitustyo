@@ -17,4 +17,4 @@ Polle Project Manager has following features:
     - Anyone can view a list of projects with information regarding their current and past workers and tasks with different statuses
     - Anyone can view a list of workers with information regarding the projects they manage or work in and tasks in those projects with different statuses
 
-The latest version of Polle can be tested [Here](https://polle.herokuapp.com/).
+The latest version of Polle can be tested [here](https://polle.herokuapp.com/).
