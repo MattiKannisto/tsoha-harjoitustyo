@@ -265,7 +265,9 @@ def add_comment_to_task(project_id, task_id):
     worker_id = session["id"]
 
     abort_forbidden_if_any_is_false([csrf_token_correct(),
-                                     worker_works_in_the_project(worker_id, project_id),
+                                     (worker_works_in_the_project(worker_id, project_id)
+                                     or project_manager_id_is_logged_in_worker_id(project_id)),
+                                     
                                      task_belongs_to_project(task_id, project_id)])
 
     comments.create(task_id, worker_id, request.form["content"])
